@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Aug 21 09:28:36 2019
+
+@author: o.arigbabu
+"""
+
+import numpy as np
+import pandas as pd
+import inspect
+import os 
+import json
+from google.cloud import bigquery
+#from bq_helper import BigQueryHelper
+from google.oauth2 import service_account
+
+app_path = inspect.getfile(inspect.currentframe())
+dash_dir = os.path.realpath(os.path.dirname(app_path))
+ 
+
+credentials = service_account.Credentials.from_service_account_file(os.path.join(dash_dir, "config/clane-8d862-fa96872fe9cb.json"))
+project_id = "clane-8d862"
+client = bigquery.Client(credentials= credentials, project=project_id)
+
+start = 20190917
+end = 20190918
+
+QUERY = """
+SELECT * FROM  `clane-8d862.analytics_183730768.events_*` 
+where REPLACE(_TABLE_SUFFIX, "_", "-")
+      BETWEEN {0} AND {1}
+      """.format('"%s"' % start, '"%s"' % end)
+    
+query_job = client.query(QUERY)
+#query_job = client.query("SELECT * FROM `clane-8d862.analytics_183730768.events_20190818` ")
+
+#QUERY = """
+#        SELECT location, city, country, value, timestamp
+#        FROM `bigquery-public-data.openaq.global_air_quality`
+#        WHERE pollutant = "pm10" AND timestamp > "2017-04-01"
+#        ORDER BY value DESC
+#        LIMIT 1000
+#        """
+
+results = query_job.result()  # Waits for job to complete.
+
+print(results)
+
+datan = list(query_job.result(timeout=30))
+ 
+
+df = pd.DataFrame(data=[list(x.values()) for x in datan], columns=list(datan[0].keys()))
+
+
+
+
+
