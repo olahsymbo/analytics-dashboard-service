@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Aug 21 09:28:36 2019
-
-@author: o.arigbabu
-"""
 
 import numpy as np
 import pandas as pd
@@ -33,15 +28,6 @@ where REPLACE(_TABLE_SUFFIX, "_", "-")
       """.format('"%s"' % start, '"%s"' % end)
     
 query_job = client.query(QUERY)
-#query_job = client.query("SELECT * FROM `clane-8d862.analytics_183730768.events_20190818` ")
-
-#QUERY = """
-#        SELECT location, city, country, value, timestamp
-#        FROM `bigquery-public-data.openaq.global_air_quality`
-#        WHERE pollutant = "pm10" AND timestamp > "2017-04-01"
-#        ORDER BY value DESC
-#        LIMIT 1000
-#        """
 
 results = query_job.result()  # Waits for job to complete.
 
@@ -51,8 +37,3 @@ datan = list(query_job.result(timeout=30))
  
 
 df = pd.DataFrame(data=[list(x.values()) for x in datan], columns=list(datan[0].keys()))
-
-
-
-
-

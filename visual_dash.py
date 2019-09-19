@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Mon Sep  2 09:37:53 2019
-
-@author: o.arigbabu
-"""
 
 from datetime import datetime as dt
 import pandas as pd
@@ -39,7 +34,7 @@ colors = {
          }
      
 app.layout = html.Div(style={'backgroundColor': colors['background']}, children=[
-    
+        
     html.Div([
         html.H1(
             children='Firebase Data',
@@ -62,11 +57,8 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
                         ),
     html.Div(id='output-container-date-picker-range')
             ]),
-
     
-#######################
-###################### First Row 
-#######################
+############################################################################################
     
     html.Div([  
         dbc.Row([
@@ -85,13 +77,6 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
                                                         t=100,
                                                         pad=5
                                                     ),
-#                                    'margin':dict(
-#                                                'l':50,
-#                                                'r':50,
-#                                                'b':100,
-#                                                't':100,
-#                                                'pad':4
-#                                            ),
                                     'plot_bgcolor': colors['background'],
                                     'paper_bgcolor': colors['background'],
                                     'title': "Event Details",
@@ -112,7 +97,7 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
                 ]),
                 ), 
     
-##################### Users Details
+#### Users Details
                 dbc.Col(html.Div([ 
                     dcc.Graph(
                     id='Users Details',
@@ -149,18 +134,17 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
                 ),
     
 
+            ]),
         ]),
-    ]),
-    html.Br(),
-    html.Br(),
+        html.Br(),
+        html.Br(),
     
-#######################
-###################### Second Row  
-#######################
+############################################################################################
+
     
     html.Div([  
         dbc.Row([
-##################### Country Details
+#### Country Details
                 dbc.Col(html.Div([ 
                     dcc.Graph(
                     id='Country Details',
@@ -188,7 +172,7 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
                     ]), 
                 ),
     
-##################### City Details
+#### City Details
         dbc.Col(html.Div([ 
             dcc.Graph(
             id='City Details',
@@ -213,22 +197,20 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
                         }
                     },
                 ),
-        ]), 
-        ), 
+            ]), 
+            ), 
     
+            ]),
         ]),
-    ]),
-    html.Br(),
-    html.Br(),
+        html.Br(),
+        html.Br(),
 
-#######################
-####################### Third Row
-#######################
+############################################################################################
     
     html.Div([  
         dbc.Row([
             
-                ##################### OS Details
+#### OS Details
                 dbc.Col(html.Div([ 
                     dcc.Graph(
                     id='OS',
@@ -247,7 +229,7 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
                         ]),
                     ),
     
-                ##################### Brand Name Details
+#### Brand Name Details
                 dbc.Col(html.Div([ 
                     dcc.Graph(
                     id='Brand Name',
@@ -272,14 +254,11 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
             html.Br(),
 
     
-#######################
-####################### Fourth Row
-#######################
+############################################################################################
     
     html.Div([  
         dbc.Row([
-    
-##################### Event Time for Users
+#### Event Time for Users
                 dbc.Col(html.Div([ 
                     dcc.Graph(
                     id='Event Time for Users',
@@ -314,9 +293,8 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
                         ),   
                         ]),
                     ),
-    
-        
-                ##################### Event Traffic Details
+                                    
+#### Event Traffic Details
                 dbc.Col(html.Div([ 
                     dcc.Graph(
                     id='Event Traffic per day',
@@ -355,8 +333,8 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
                 ]),
             ]),
             
-    html.Br(),
-    html.Br(),
+        html.Br(),
+        html.Br(),
 
     ], 
     className = "container")

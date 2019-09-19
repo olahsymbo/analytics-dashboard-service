@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Sat Sep  7 21:38:52 2019
-
-@author: o.arigbabu
-"""
 
 import pandas as pd
 import numpy as np
@@ -33,7 +28,6 @@ def read_data(data):
         event_time = data.loc[row]['event_timestamp']
         event_bundle_sequence_id = data.loc[row]['event_bundle_sequence_id']
         event_diff = np.subtract(int(event_time),int(user_first_touch))
-    #    engagement_time = data[row]['event_params']['engagement_time_msec']
         
         app_dmat.append([user_id, user_first_touch, device, 
                         brand_name, platform, geo_city, geo_country, 
@@ -51,8 +45,6 @@ def read_data(data):
     enc_dmat = app_dmat_df
     
     return enc_dmat
-    
-    #print(len(enc_dmat['user_id'].unique()))
     
 data = df 
 
