@@ -32,16 +32,21 @@ def read_data(data):
         app_dmat.append([user_id, user_first_touch, device, 
                         brand_name, platform, geo_city, geo_country, 
                         geo_continent, event_name, event_date, 
-                        event_previous_time, event_time, event_bundle_sequence_id, event_diff])
+                        event_previous_time, event_time, 
+                        event_bundle_sequence_id, event_diff])
     
     colums = ['user_id', 'user_first_touch', 'device', 
                         'brand_name', 'platform', 'geo_city', 'geo_country', 
                         'geo_continent', 'event_name', 'event_date', 
-                        'event_previous_time', 'event_time', 'event_bundle_sequence_id', 'event_diff']
+                        'event_previous_time', 'event_time', 
+                        'event_bundle_sequence_id', 'event_diff']
      
     
     app_dmat_df = pd.DataFrame(app_dmat, columns = colums)
+    app_dmat_df['event_date'] =  pd.to_datetime(app_dmat_df['event_date'], 
+               format='%Y%m%d')
     
+    app_dmat_df['event_date'] = app_dmat_df['event_date'].dt.date
     enc_dmat = app_dmat_df
     
     return enc_dmat
@@ -50,19 +55,23 @@ data = df
 
 enc_dmat = read_data(data)
     
-Enc_events = enc_dmat.groupby('event_name')['user_id'].count().sort_values(ascending=True)
+Enc_events = enc_dmat.groupby('event_name')['user_id'].count() \
+                                                .sort_values(ascending=True)
 Event_df = pd.DataFrame(Enc_events) 
 Index_Event_df = Event_df.reset_index()
 
-Enc_users = enc_dmat.groupby('user_id')['event_name'].count().sort_values(ascending=True)
+Enc_users = enc_dmat.groupby('user_id')['event_name'].count() \
+                                                .sort_values(ascending=True)
 User_df = pd.DataFrame(Enc_users) 
 Index_User_df = User_df.reset_index()
 
-Enc_country = enc_dmat.groupby('geo_country')['user_id'].count().sort_values(ascending=False) 
+Enc_country = enc_dmat.groupby('geo_country')['user_id'].count() \
+                                                .sort_values(ascending=False) 
 country_df = pd.DataFrame(Enc_country) 
 Index_country_df = country_df.reset_index()
 
-Enc_city = enc_dmat.groupby('geo_city')['user_id'].count().sort_values(ascending=False) 
+Enc_city = enc_dmat.groupby('geo_city')['user_id'].count() \
+                                                .sort_values(ascending=False) 
 city_df = pd.DataFrame(Enc_city) 
 Index_city_df = city_df.reset_index()
 
@@ -74,15 +83,16 @@ Enc_brand = enc_dmat.groupby('brand_name')['user_id'].count()
 brand_df = pd.DataFrame(Enc_brand) 
 Index_brand_df = brand_df.reset_index() 
 
-Enc_event_time = enc_dmat.groupby('user_id')['event_diff'].sum().sort_values(ascending=True) 
+Enc_event_time = enc_dmat.groupby('user_id')['event_diff'].sum() \
+                                                .sort_values(ascending=True) 
 Enc_event_time.sort_values(ascending=False).head(40) 
 event_time_df= pd.DataFrame(Enc_event_time) 
 Index_event_time_df = event_time_df.reset_index()
 
-Enc_event_date = enc_dmat.groupby('event_date')['user_id'].count() 
+Enc_event_date = enc_dmat.groupby('event_date').size() 
 event_date_df= pd.DataFrame(Enc_event_date) 
 Index_event_date_df = event_date_df.reset_index()
-
+Index_event_date_df.columns = ['event_date', 'counts']
 
 if __name__ == 'main':
     read_data()
