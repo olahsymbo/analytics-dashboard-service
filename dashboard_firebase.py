@@ -11,7 +11,7 @@ from google.cloud import bigquery
 from google.oauth2 import service_account
 
 from datetime import date, timedelta
-previous_date = date.today() - timedelta(days=5)
+previous_date = date.today() - timedelta(days=1)
 
 
 app_path = inspect.getfile(inspect.currentframe())

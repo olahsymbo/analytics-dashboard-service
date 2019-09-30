@@ -61,7 +61,7 @@ Event_df = pd.DataFrame(Enc_events)
 Index_Event_df = Event_df.reset_index()
 
 Enc_users = enc_dmat.groupby('user_id')['event_name'].count() \
-                                                .sort_values(ascending=True)
+                                                .sort_values(ascending=True).head(20) 
 User_df = pd.DataFrame(Enc_users) 
 Index_User_df = User_df.reset_index()
 
@@ -84,8 +84,9 @@ brand_df = pd.DataFrame(Enc_brand)
 Index_brand_df = brand_df.reset_index() 
 
 Enc_event_time = enc_dmat.groupby('user_id')['event_diff'].sum() \
-                                                .sort_values(ascending=True) 
-Enc_event_time.sort_values(ascending=False).head(40) 
+                                                .sort_values(ascending=True).head(20)  
+                                                
+#Enc_event_time = Enc_event_time.sort_values(ascending=False).head(20) 
 event_time_df= pd.DataFrame(Enc_event_time) 
 Index_event_time_df = event_time_df.reset_index()
 
