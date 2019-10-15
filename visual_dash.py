@@ -3,8 +3,10 @@
 
 import os
 import inspect
-from datetime import datetime as dt
-from datetime import date
+app_path = inspect.getfile(inspect.currentframe())
+dash_dir = os.path.realpath(os.path.dirname(app_path))
+
+from datetime import datetime as dt 
 import base64
 import pandas as pd
 import numpy as np
@@ -13,34 +15,18 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly
 import plotly.graph_objs as go  
-import dash_bootstrap_components as dbc
-from dash.dependencies import Output, Input
-from google.cloud import bigquery
-#from bq_helper import BigQueryHelper
-from google.oauth2 import service_account
-from datetime import date, timedelta
-previous_date = date.today() - timedelta(days=5)
-app_path = inspect.getfile(inspect.currentframe())
-dash_dir = os.path.realpath(os.path.dirname(app_path))
+import dash_bootstrap_components as dbc 
+from dashboard_firebase import *
 import logging
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
-def generate_table(dataframe, max_rows=10):
-    return html.Table(
-        # Header
-        [html.Tr([html.Th(col) for col in dataframe.columns])] +
-
-        # Body
-        [html.Tr([
-            html.Td(dataframe.iloc[i][col]) for col in dataframe.columns
-        ]) for i in range(min(len(dataframe), max_rows))]
-    )
-
+client = db_config(dash_dir)
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.LUMEN])
+app.config.suppress_callback_exceptions = True
 
 colors = {
             'background': '#f5f6f7',             #'#9KDBFF'
@@ -55,8 +41,18 @@ divBorder = {
 
 encoded_image = base64.b64encode(open(os.path.join(dash_dir, "img/clane.png"), 'rb').read())
 
+# returns top indicator div
+def indicator(color, text, id_value):
+    return html.Div(
+        [
+            html.P(id=id_value, className="indicator_value"),
+            html.P(text, className="twelve columns indicator_text"),
+        ],
+        className="tow rows indicator pretty_container",
+    )
+
 app.layout = html.Div(style={'backgroundColor': colors['background'], 
-                             "margin": "auto"}, children=[
+                             "margin": "auto", "overflow": "auto"}, children=[
         
     html.Div([
         dbc.Row([ 
@@ -70,18 +66,23 @@ app.layout = html.Div(style={'backgroundColor': colors['background'],
                    'padding-right' : 0, 
                    "line-height":"1",
                    "margin-bottom": "0.75rem",
-                   "margin-left": "0.35rem",
+                   "margin-left": "0.45rem",
                    "margin-top": "0.75rem",
                    "fontColor":"#515151" 
                    }
                 ),
             ),
         
-        dbc.Col(
-        html.H6(
-            children='Firebase',
+        dbc.Col(  
+            html.Nav(className = "nav nav-pills", children=[
+            html.A('Firebase DB', className="nav-item nav-link active btn", 
+                   href= os.path.join(dash_dir, '/visual_dash.py'))
+#            html.A('Interactions', className="nav-item nav-link btn", 
+#                   href= os.path.join(dash_dir, '/visual_interactions.py'))
+                    ],
             style={'textAlign': "right", 
-                   "margin": "12px", 
+                   "margin": "1px", 
+                   "float":"right",
                    "padding": "0px", 
                    "font-family":"Helvetica Neue, Helvetica, Arial", 
                    "font-size":"2rem", 
@@ -91,7 +92,7 @@ app.layout = html.Div(style={'backgroundColor': colors['background'],
                    "margin-top": "0.80rem",
                    "fontColor":"#515151" 
                    }
-                ),
+            ),
             ),
             
             ]),
@@ -106,157 +107,185 @@ app.layout = html.Div(style={'backgroundColor': colors['background'],
                 min_date_allowed=dt(2018, 10, 31),
                 max_date_allowed=dt(2021, 12, 31),
                 initial_visible_month=dt(2019, 8, 1),
-                start_date=dt(2019, 8, 29),
+                start_date=dt(2019, 8, 28),
                 end_date=dt(2019, 8, 30)),
-    html.Div(id='output-container-date-picker-range')]),
+    html.Div(id='output-container-date-picker-range'),
+    dcc.Loading(
+    html.Div(id='Intermediate-Details', style={'display': 'none'}), type="circle"),    
+    ]),
     
     html.Br(),
     html.Br(),
-    
+
 ############################################################################### 
 
-    
-    html.Div([  
-        dbc.Row([
-#### Country Details
-    
-                dbc.Col(html.Div([ 
-                    dcc.Loading(
-                    dcc.Graph(
-                    id='Country-Details')
-                    ),
-                    ],style={'backgroundColor':colors['div_bg'], 
+html.Div([     
+            html.Div([ 
+#### User/Event Details  
+                        html.Br(),
+                        html.Div(
+                                [ 
+                                html.P("Unique Users"),
+                                html.H2(id = "Unique-Users",
+                                        className = "info_text" 
+                                   ), 
+                                ], style={'textAlign': 'center', 
+                                          'fontSize': 15, 
+                                          'fontColor':'blue',
+                                          'font-family': 'Helvetica Neue, Helvetica, Arial'
+                                        }
+                            ),
+                                        
+                        html.Br(),
+                        
+                        html.Div(
+                                [ 
+                                html.P("Total Events"),
+                                html.H2(id = "Total-Event-Details",
+                                        className = "info_text" 
+                                   ), 
+                            ], style={'textAlign': 'center', 
+                                      'fontSize': 15,
+                                      'font-family': 'Helvetica Neue, Helvetica, Arial' 
+                                      }
+                        ),
+                         
+                        html.Br(),
+                        
+                        html.Div(
+                                [ 
+                                html.P("Churn Rate"),
+                                html.H2(id = "Churn-Number-Details",
+                                        className = "info_text" 
+                                   ), 
+                            ], style={'textAlign': 'center', 
+                                      'fontSize': 15, 
+                                      'font-family': 'Helvetica Neue, Helvetica, Arial'
+                                      }
+                        ),
+                        html.Br(),
+                         ],style={'backgroundColor':'ffffff',
                          'border':divBorder['border'],
-                         'border-radius':divBorder['border-radius']
+                         'border-radius':divBorder['border-radius'],
+                         'display' : 'inline-block', 
+                         'boxSizing' : 'border-box',
+                         'float':'left',
+                         'width' : '25%',
+                         'box-shadow' : '2px 2px 2px lightgrey',
+                         'position':'relative'
                          }),
-                    ),  
 
-#### City Details
-        dbc.Col(html.Div([ 
-                    dcc.Loading(
-                    dcc.Graph(
-                    id='City-Details')
-                    ),
-                    ],style={'backgroundColor':colors['div_bg'], 
-                         'border':divBorder['border'],
-                         'border-radius':divBorder['border-radius']
-                         }),
-                    ),
-            ]),
-        ]),
-
-        html.Br(), 
-        html.Br(), 
-        
-    html.Div([  
-        dbc.Row([
-#### OS Details
-    
-                dbc.Col(html.Div([ 
-                    dcc.Loading(
-                    dcc.Graph(
-                    id='OS-Details')
-                    ),
-                    ],style={'backgroundColor':colors['div_bg'], 
-                         'border':divBorder['border'],
-                         'border-radius':divBorder['border-radius']
-                         }),
-                    ),
-
-#### Brand Details
-        dbc.Col(html.Div([ 
-                    dcc.Loading(
-                    dcc.Graph(
-                    id='Brand-Details')
-                    ),
-                    ],style={'backgroundColor':colors['div_bg'], 
-                         'border':divBorder['border'],
-                         'border-radius':divBorder['border-radius']
-                         }),
-                    ),
-            ]),
-        ]),
-    
-        html.Br(), 
-        html.Br(), 
-        
-        html.Div([  
-        dbc.Row([
-#### OS Details
-    
-                dbc.Col(html.Div([ 
-                    dcc.Loading(
-                    dcc.Graph(
-                    id='Event-Details')
-                    ),
-                    ],style={'backgroundColor':colors['div_bg'], 
-                         'border':divBorder['border'],
-                         'border-radius':divBorder['border-radius']
-                         }),
-                    ),
-
-#### Brand Details
-        dbc.Col(html.Div([ 
-                    dcc.Loading(
-                    dcc.Graph(
-                    id='User-Details')
-                    ),
-                    ],style={'backgroundColor':colors['div_bg'], 
-                         'border':divBorder['border'],
-                         'border-radius':divBorder['border-radius']
-                         }),
-                    ),
-            ]),
-        ]),
-    
-        html.Br(), 
-        html.Br(), 
-        
-        html.Div([  
-        dbc.Row([
-#### Time Details
-    
-                dbc.Col(html.Div([ 
-                    dcc.Loading(
-                    dcc.Graph(
-                    id='Time-Details')
-                    ),
-                    ],style={'backgroundColor':colors['div_bg'], 
-                         'border':divBorder['border'],
-                         'border-radius':divBorder['border-radius']
-                         }),
-                    ),
-
-#### Traffic Details
-        dbc.Col(html.Div([ 
+#### Traffic Details        
+                    html.Div([ 
                     dcc.Loading(
                     dcc.Graph(
                     id='Traffic-Details')
                     ),
                     ],style={'backgroundColor':colors['div_bg'], 
                          'border':divBorder['border'],
-                         'border-radius':divBorder['border-radius']
+                         'border-radius':divBorder['border-radius'],
+                         'display' : 'inline-block', 
+                         'boxSizing' : 'border-box',
+                         'float':'right', 
+                         'width' : '73%',
+                         'box-shadow' : '2px 2px 2px lightgrey',
+                         'position': 'relative'
                          }),
+                    
+            ], style={'paddingBottom': '5', "overflow": "auto"}),
+    
+    html.Br(), 
+    
+    html.Div([  
+#### Country Details 
+                    html.Div([ 
+                    dcc.Loading(
+                    dcc.Graph(
+                    id='Country-Details')
                     ),
-            ]),
-        ]),
+                    ],style={'backgroundColor':colors['div_bg'], 
+                         'border':divBorder['border'],
+                         'border-radius':divBorder['border-radius'], 
+                         'display' : 'inline-block', 
+                         'boxSizing' : 'border-box',
+                         'float':'left',
+                         'width' : '60%',
+                         'box-shadow': '2px 2px 2px lightgrey',
+                         'position': 'relative'
+                         }),  
+
+#### OS Details 
+                    html.Div([ 
+                    dcc.Loading(
+                    dcc.Graph(
+                    id='OS-Details')
+                    ),
+                    ],style={'backgroundColor':colors['div_bg'], 
+                         'border':divBorder['border'],
+                         'border-radius':divBorder['border-radius'], 
+                         'display' : 'inline-block', 
+                         'boxSizing' : 'border-box',
+                         'float':'right',
+                         'width' : '38%',
+                         'box-shadow' : '2px 2px 2px lightgrey',
+                         'position': 'relative'
+                         }), 
+        ],
+        style={'paddingBottom' : '5', "overflow": "auto"}),
+
+        html.Br(),  
+        
+    html.Div([   
+
+#### Event Details 
+            html.Div([ 
+            dcc.Loading(
+            dcc.Graph(
+            id='Event-Details')
+            ),
+            ],style={'backgroundColor':colors['div_bg'], 
+                 'border':divBorder['border'],
+                 'border-radius':divBorder['border-radius'], 
+                 'display' : 'inline-block', 
+                 'boxSizing' : 'border-box',
+                 'float':'left',
+                 'width' : '60%',
+                 'box-shadow' : '2px 2px 2px lightgrey',
+                 'position': 'relative'
+                 }), 
+        
+#### Mobile Brand
+            html.Div([ 
+            dcc.Loading(
+            dcc.Graph(
+            id='Brand-Details')
+            ),
+            ],style={'backgroundColor':colors['div_bg'], 
+                 'border':divBorder['border'],
+                 'border-radius':divBorder['border-radius'], 
+                 'display' : 'inline-block', 
+                 'boxSizing' : 'border-box',
+                 'float':'right',
+                 'width' : '38%',
+                 'box-shadow' : '2px 2px 2px lightgrey',
+                 'position': 'relative'
+                 }),
+ 
+            ],  
+            style={'paddingBottom' : '5', "overflow": "auto"}),
+ 
+        html.Br(),   
     ], 
     className = "container")
- 
-    
-############### Country Details
+
+
+############### DB Loader 
 @app.callback(
-        dash.dependencies.Output('Country-Details','figure'),
+        dash.dependencies.Output('Intermediate-Details','children'),
         [dash.dependencies.Input('my-date-picker-range', 'start_date'),
         dash.dependencies.Input('my-date-picker-range', 'end_date')])
     
-def country_data(start_date, end_date):
-    
-    credentials = service_account.Credentials.from_service_account_file(
-            os.path.join(dash_dir, "config/clane-8d862-fa96872fe9cb.json"))
-    
-    project_id = "clane-8d862"
-    client = bigquery.Client(credentials= credentials, project=project_id)
+def db_data(start_date, end_date):
     
     start = dt.strptime(start_date[:10], '%Y-%m-%d').strftime("%Y%m%d")
     
@@ -269,21 +298,94 @@ def country_data(start_date, end_date):
           """.format('"%s"' % start, '"%s"' % end)
         
     query_job = client.query(QUERY)
-    
-    results = query_job.result()  # Waits for job to complete.
     print("firebase data loaded")
     
-    datan = list(query_job.result(timeout=30))
+    datan = list(query_job.result(timeout=100))
      
     df = pd.DataFrame(data=[list(x.values()) for x in datan], 
                             columns=list(datan[0].keys()))
+    datann = df
     
-    data = df
+    return datann.to_json()
+
+
+############### Unique Users
+@app.callback(
+        dash.dependencies.Output('Unique-Users','children'),
+        [dash.dependencies.Input('Intermediate-Details', 'children') ])
+    
+def user_data(datann):
+    datann = pd.read_json(datann)
     app_dmat = [] 
-    for row in range(len(data)):
+    for row in range(len(datann)):
         
-        user_id = data.loc[row]['user_pseudo_id']
-        geo_country = data.loc[row]['geo']['country']
+        user_id = datann.loc[row]['user_pseudo_id'] 
+        
+        app_dmat.append([user_id])
+    
+    colums = ['user_id']
+     
+    
+    app_dmat_df = pd.DataFrame(app_dmat, columns = colums)  
+    enc_dmat = app_dmat_df
+       
+    
+    Enc_users = enc_dmat['user_id'].nunique()
+    
+    return Enc_users 
+
+############### Total Events
+@app.callback(
+        dash.dependencies.Output('Total-Event-Details','children'),
+        [dash.dependencies.Input('Intermediate-Details', 'children') ])
+    
+def total_event_data(datann):
+    datann = pd.read_json(datann) 
+    
+    return datann.shape[0]
+
+############### Total Number Count
+@app.callback(
+        dash.dependencies.Output('Churn-Number-Details','children'),
+        [dash.dependencies.Input('Intermediate-Details', 'children') ])
+    
+def churn_number_data(datann):
+    datann = pd.read_json(datann) 
+    
+    app_dmat = [] 
+    for row in range(len(datann)):
+        
+        user_id = datann.loc[row]['user_pseudo_id']
+        event_date = datann.loc[row]['event_date']
+        event_name = datann.loc[row]['event_name']
+        
+        app_dmat.append([user_id, event_date, event_name])
+    
+    colums = ['user_id',  'event_date', 'event_name']
+    
+    app_dmat_df = pd.DataFrame(app_dmat, columns = colums)  
+    
+    Enc_users = app_dmat_df['user_id'].nunique()
+    
+    app_remove = app_dmat_df[app_dmat_df['event_name'] == 'app_remove']
+     
+    churn_rate = ((app_remove.shape[0])/Enc_users)*100
+
+    return '{0}%'.format((round(churn_rate,2)))
+
+    
+############### Country Details
+@app.callback(
+        dash.dependencies.Output('Country-Details','figure'),
+        [dash.dependencies.Input('Intermediate-Details', 'children') ])
+    
+def country_data(datann):
+    datann = pd.read_json(datann)
+    app_dmat = [] 
+    for row in range(len(datann)):
+        
+        user_id = datann.loc[row]['user_pseudo_id']
+        geo_country = datann.loc[row]['geo']['country']
         
         app_dmat.append([user_id, geo_country])
     
@@ -294,7 +396,7 @@ def country_data(start_date, end_date):
     enc_dmat = app_dmat_df
        
     
-    Enc_country = enc_dmat.groupby('geo_country')['user_id'].count() \
+    Enc_country = enc_dmat.groupby('geo_country')['user_id'].nunique() \
                                                 .sort_values(ascending=False) 
     country_df = pd.DataFrame(Enc_country) 
     Index_country_df = country_df.reset_index()
@@ -305,121 +407,29 @@ def country_data(start_date, end_date):
             name='Countries' 
             )
     
-    return {'data': [data],'layout' : go.Layout(title=dict(
-                                                    text="Countries",
-                                                ),
-                                                xaxis=dict(automargin = True, tickangle=45),
-                                                yaxis=dict(title = 'Counts')
-                                                )}
-
-    
-############### City Details
-@app.callback(
-        dash.dependencies.Output('City-Details','figure'),
-        [dash.dependencies.Input('my-date-picker-range', 'start_date'),
-        dash.dependencies.Input('my-date-picker-range', 'end_date')])
-    
-def city_data(start_date, end_date):
-    
-    credentials = service_account.Credentials.from_service_account_file(
-            os.path.join(dash_dir, "config/clane-8d862-fa96872fe9cb.json"))
-    
-    project_id = "clane-8d862"
-    client = bigquery.Client(credentials= credentials, project=project_id)
-    
-    start = dt.strptime(start_date[:10], '%Y-%m-%d').strftime("%Y%m%d")
-    
-    end = dt.strptime(end_date[:10], '%Y-%m-%d').strftime("%Y%m%d")
-    
-    QUERY = """
-    SELECT * FROM  `clane-8d862.analytics_183730768.events_*` 
-    where REPLACE(_TABLE_SUFFIX, "_", "-")
-          BETWEEN {0} AND {1}
-          """.format('"%s"' % start, '"%s"' % end)
-        
-    query_job = client.query(QUERY)
-    
-    results = query_job.result()  # Waits for job to complete.
-    
-    datan = list(query_job.result(timeout=30))
-     
-    df = pd.DataFrame(data=[list(x.values()) for x in datan], 
-                            columns=list(datan[0].keys()))
-    
-    data = df
-    app_dmat = []
-    for row in range(len(data)):
-        
-        user_id = data.loc[row]['user_pseudo_id']
-        geo_city = data.loc[row]['geo']['city']
-        
-        app_dmat.append([user_id, geo_city])
-    
-    colums = ['user_id',  'geo_city' ]
-     
-    
-    app_dmat_df = pd.DataFrame(app_dmat, columns = colums)  
-    enc_dmat = app_dmat_df
-       
-    
-    Enc_city = enc_dmat.groupby('geo_city')['user_id'].count() \
-                                                .sort_values(ascending=False) 
-    city_df = pd.DataFrame(Enc_city) 
-    Index_city_df = city_df.reset_index()
-    
-    data = plotly.graph_objs.Bar(
-            x=Index_city_df.geo_city,
-            y=Index_city_df.user_id,
-            name='Cities' 
-            )
-    
-    return {'data': [data],'layout' : go.Layout(title=dict(
-                                                    text="Cities",
-                                                ),
-                                                xaxis=dict(automargin = True, tickangle=45),
-                                                yaxis=dict(title = 'Counts')
-                                                )}
-    
+    return {'data': [data],
+            'layout' : go.Layout(title=dict(
+                                            text="Countries",
+                                            ), 
+                                            font=dict(size=10),
+                                            height = 350,
+                                            xaxis=dict(automargin = True, 
+                                                       tickangle=45),
+                                            yaxis=dict(title = 'Counts')
+                                            )}
     
 ################ OS Details
 @app.callback(
         dash.dependencies.Output('OS-Details','figure'),
-        [dash.dependencies.Input('my-date-picker-range', 'start_date'),
-        dash.dependencies.Input('my-date-picker-range', 'end_date')])
+        [dash.dependencies.Input('Intermediate-Details', 'children') ])
     
-def os_data(start_date, end_date):
-    
-    credentials = service_account.Credentials.from_service_account_file(
-            os.path.join(dash_dir, "config/clane-8d862-fa96872fe9cb.json"))
-    
-    project_id = "clane-8d862"
-    client = bigquery.Client(credentials= credentials, project=project_id)
-    
-    start = dt.strptime(start_date[:10], '%Y-%m-%d').strftime("%Y%m%d")
-    
-    end = dt.strptime(end_date[:10], '%Y-%m-%d').strftime("%Y%m%d")
-    
-    QUERY = """
-    SELECT * FROM  `clane-8d862.analytics_183730768.events_*` 
-    where REPLACE(_TABLE_SUFFIX, "_", "-")
-          BETWEEN {0} AND {1}
-          """.format('"%s"' % start, '"%s"' % end)
+def os_data(datann):
+    datann = pd.read_json(datann)
+    app_dmat = [] 
+    for row in range(len(datann)):
         
-    query_job = client.query(QUERY)
-    
-    results = query_job.result()  # Waits for job to complete.
-    
-    datan = list(query_job.result(timeout=30))
-     
-    df = pd.DataFrame(data=[list(x.values()) for x in datan], 
-                            columns=list(datan[0].keys()))
-    
-    data = df
-    app_dmat = []
-    for row in range(len(data)):
-        
-        user_id = data.loc[row]['user_pseudo_id']
-        platform = data.loc[row]['platform']
+        user_id = datann.loc[row]['user_pseudo_id']
+        platform = datann.loc[row]['platform']
         
         app_dmat.append([user_id, platform])
     
@@ -439,119 +449,28 @@ def os_data(start_date, end_date):
             name='OS' 
             )
     
-    return {'data': [data],'layout' : go.Layout(title=dict(
-                                                    text="OS",
-                                                ),
-                                                xaxis=dict(automargin = True),
-                                                yaxis=dict(title = 'Counts')
-                                                )}
+    return {'data': [data],
+            'layout' : go.Layout(title=dict(
+                                            text="OS",
+                                            ), 
+                                            font=dict( size=10),
+                                            height = 350,
+                                            xaxis=dict(automargin = True),
+                                            yaxis=dict(title = 'Counts')
+                                            )}
     
-############ Brand Details
-@app.callback(
-    dash.dependencies.Output('Brand-Details','figure'),
-    [dash.dependencies.Input('my-date-picker-range', 'start_date'),
-    dash.dependencies.Input('my-date-picker-range', 'end_date')])
-    
-def brand_data(start_date, end_date):
-    
-    credentials = service_account.Credentials.from_service_account_file(
-            os.path.join(dash_dir, "config/clane-8d862-fa96872fe9cb.json"))
-    
-    project_id = "clane-8d862"
-    client = bigquery.Client(credentials= credentials, project=project_id)
-    
-    start = dt.strptime(start_date[:10], '%Y-%m-%d').strftime("%Y%m%d")
-    
-    end = dt.strptime(end_date[:10], '%Y-%m-%d').strftime("%Y%m%d")
-    
-    QUERY = """
-    SELECT * FROM  `clane-8d862.analytics_183730768.events_*` 
-    where REPLACE(_TABLE_SUFFIX, "_", "-")
-          BETWEEN {0} AND {1}
-          """.format('"%s"' % start, '"%s"' % end)
-        
-    query_job = client.query(QUERY)
-    
-    results = query_job.result()  # Waits for job to complete.
-    
-    datan = list(query_job.result(timeout=30))
-     
-    df = pd.DataFrame(data=[list(x.values()) for x in datan], 
-                            columns=list(datan[0].keys()))
-    
-    data = df
-    app_dmat = []
-    for row in range(len(data)):
-        
-        user_id = data.loc[row]['user_pseudo_id']
-        brand_name = data.loc[row]['device']['mobile_brand_name']
-        
-        app_dmat.append([user_id, brand_name])
-    
-    colums = ['user_id',  'brand_name' ]
-     
-    
-    app_dmat_df = pd.DataFrame(app_dmat, columns = colums)  
-    enc_dmat = app_dmat_df
-       
-    
-    Enc_brand = enc_dmat.groupby('brand_name')['user_id'].count() 
-    brand_df = pd.DataFrame(Enc_brand) 
-    Index_brand_df = brand_df.reset_index() 
-    
-    data = plotly.graph_objs.Pie(labels=Index_brand_df.brand_name, 
-                                 values=Index_brand_df.user_id, 
-            name='Phone Brand' 
-            )
-    
-    return {'data': [data],'layout' : go.Layout(title=dict(
-                                                    text="Mobile Brands",
-                                                ),
-                                                xaxis=dict(automargin = True, tickangle=45),
-                                                yaxis=dict(title = 'Counts')
-                                                )}
-
-
 ############ Event details    
 @app.callback(
     dash.dependencies.Output('Event-Details','figure'),
-    [dash.dependencies.Input('my-date-picker-range', 'start_date'),
-    dash.dependencies.Input('my-date-picker-range', 'end_date')])
+        [dash.dependencies.Input('Intermediate-Details', 'children') ])
     
-def event_data(start_date, end_date):
-    
-    credentials = service_account.Credentials.from_service_account_file(
-            os.path.join(dash_dir, "config/clane-8d862-fa96872fe9cb.json"))
-    
-    project_id = "clane-8d862"
-    client = bigquery.Client(credentials= credentials, project=project_id)
-    
-    start = dt.strptime(start_date[:10], '%Y-%m-%d').strftime("%Y%m%d")
-    
-    end = dt.strptime(end_date[:10], '%Y-%m-%d').strftime("%Y%m%d")
-    
-    QUERY = """
-    SELECT * FROM  `clane-8d862.analytics_183730768.events_*` 
-    where REPLACE(_TABLE_SUFFIX, "_", "-")
-          BETWEEN {0} AND {1}
-          """.format('"%s"' % start, '"%s"' % end)
+def event_data(datann):
+    datann = pd.read_json(datann)
+    app_dmat = [] 
+    for row in range(len(datann)):
         
-    query_job = client.query(QUERY)
-    
-    results = query_job.result()  # Waits for job to complete.
-    print("firebase data loaded")
-    
-    datan = list(query_job.result(timeout=30))
-     
-    df = pd.DataFrame(data=[list(x.values()) for x in datan], 
-                            columns=list(datan[0].keys()))
-    
-    data = df
-    app_dmat = []
-    for row in range(len(data)):
-        
-        user_id = data.loc[row]['user_pseudo_id']
-        event_name = data.loc[row]['event_name']
+        user_id = datann.loc[row]['user_pseudo_id']
+        event_name = datann.loc[row]['event_name']
         
         app_dmat.append([user_id, event_name])
     
@@ -574,204 +493,76 @@ def event_data(start_date, end_date):
             name='Events' 
             )
     
-    return {'data': [data],'layout' : go.Layout(title=dict(
-                                                    text="Events Usage",
-                                                ),
-                                                margin = dict(l=200, r=50, b=50,
-                                                              t=100, pad=5),
-                                                xaxis=dict(automargin = True,
-                                                            title = 'Counts'),
-                                                yaxis=dict(
-                                                tickfont=dict(size=10))
-                                                )}
-############### Top User    
+    return {'data': [data],
+            'layout' : go.Layout(title=dict(
+                                            text="Events Usage",
+                                            ),
+                                            font=dict(size=10),
+                                            height = 350,
+                                            margin = dict(l=200, r=50, b=50,
+                                                          t=100, pad=5),
+                                            xaxis=dict(automargin = True,
+                                                        title = 'Counts'),
+                                            yaxis=dict(
+                                            tickfont=dict(size=10))
+                                            )}
+
+
+############ Brand Details
 @app.callback(
-        dash.dependencies.Output('User-Details','figure'),
-        [dash.dependencies.Input('my-date-picker-range', 'start_date'),
-        dash.dependencies.Input('my-date-picker-range', 'end_date')])
+    dash.dependencies.Output('Brand-Details','figure'),
+    [dash.dependencies.Input('Intermediate-Details', 'children') ])
     
-def user_data(start_date, end_date):
-    
-    credentials = service_account.Credentials.from_service_account_file(
-            os.path.join(dash_dir, "config/clane-8d862-fa96872fe9cb.json"))
-    
-    project_id = "clane-8d862"
-    client = bigquery.Client(credentials= credentials, project=project_id)
-    
-    start = dt.strptime(start_date[:10], '%Y-%m-%d').strftime("%Y%m%d")
-    
-    end = dt.strptime(end_date[:10], '%Y-%m-%d').strftime("%Y%m%d")
-    
-    QUERY = """
-    SELECT * FROM  `clane-8d862.analytics_183730768.events_*` 
-    where REPLACE(_TABLE_SUFFIX, "_", "-")
-          BETWEEN {0} AND {1}
-          """.format('"%s"' % start, '"%s"' % end)
-        
-    query_job = client.query(QUERY)
-    
-    results = query_job.result()  # Waits for job to complete.
-    
-    datan = list(query_job.result(timeout=30))
-     
-    df = pd.DataFrame(data=[list(x.values()) for x in datan], 
-                            columns=list(datan[0].keys()))
-    
-    data = df
+def brand_data(datann):
+    datann = pd.read_json(datann) 
     app_dmat = []
-    for row in range(len(data)):
+    for row in range(len(datann)):
         
-        user_id = data.loc[row]['user_pseudo_id']
-        event_name = data.loc[row]['event_name']
+        user_id = datann.loc[row]['user_pseudo_id']
+        brand_name = datann.loc[row]['device']['mobile_brand_name']
         
-        app_dmat.append([user_id, event_name])
+        app_dmat.append([user_id, brand_name])
     
-    colums = ['user_id',  'event_name' ]
+    colums = ['user_id',  'brand_name' ]
      
     
     app_dmat_df = pd.DataFrame(app_dmat, columns = colums)  
     enc_dmat = app_dmat_df
        
     
-    Enc_users = enc_dmat.groupby('user_id')['event_name'].count() \
-                                                .sort_values(ascending=True).head(10) 
-    User_df = pd.DataFrame(Enc_users) 
-    Index_User_df = User_df.reset_index()
+    Enc_brand = enc_dmat.groupby('brand_name')['user_id'].count() 
+    brand_df = pd.DataFrame(Enc_brand) 
+    Index_brand_df = brand_df.reset_index() 
     
-    data = plotly.graph_objs.Bar(
-            y=Index_User_df.user_id,
-            x=Index_User_df.event_name,
-            orientation='h',
-            name='Users' 
+    data = plotly.graph_objs.Pie(labels=Index_brand_df.brand_name, 
+                                 values=Index_brand_df.user_id, 
+            name='Phone Brand' 
             )
     
-    return {'data': [data],'layout' : go.Layout(title=dict(
-                                                    text="Top Users",
-                                                ),
-                                                margin = dict(l=200, r=50, b=50,
-                                                              t=100, pad=5),
-                                                xaxis=dict(automargin = True, 
-                                                            title = 'Counts'),
-                                                yaxis=dict(
-                                                tickfont=dict(size=8))
-                                                )}
-    
-    
-############ Event Time    
-@app.callback(
-    dash.dependencies.Output('Time-Details','figure'),
-    [dash.dependencies.Input('my-date-picker-range', 'start_date'),
-    dash.dependencies.Input('my-date-picker-range', 'end_date')])
-    
-def time_data(start_date, end_date):
-    
-    credentials = service_account.Credentials.from_service_account_file(
-            os.path.join(dash_dir, "config/clane-8d862-fa96872fe9cb.json"))
-    
-    project_id = "clane-8d862"
-    client = bigquery.Client(credentials= credentials, project=project_id)
-    
-    start = dt.strptime(start_date[:10], '%Y-%m-%d').strftime("%Y%m%d")
-    
-    end = dt.strptime(end_date[:10], '%Y-%m-%d').strftime("%Y%m%d")
-    
-    QUERY = """
-    SELECT * FROM  `clane-8d862.analytics_183730768.events_*` 
-    where REPLACE(_TABLE_SUFFIX, "_", "-")
-          BETWEEN {0} AND {1}
-          """.format('"%s"' % start, '"%s"' % end)
-        
-    query_job = client.query(QUERY)
-    
-    results = query_job.result()  # Waits for job to complete.
-    print("firebase data loaded")
-    
-    datan = list(query_job.result(timeout=30))
-     
-    df = pd.DataFrame(data=[list(x.values()) for x in datan], 
-                            columns=list(datan[0].keys()))
-    
-    data = df
-    app_dmat = []
-    for row in range(len(data)):
-        
-        user_id = data.loc[row]['user_pseudo_id']
-        user_first_touch = data.loc[row]['user_first_touch_timestamp']
-        event_time = data.loc[row]['event_timestamp']
-        event_diff = np.subtract(int(event_time),int(user_first_touch))
-        
-        app_dmat.append([user_id, event_diff])
-    
-    colums = ['user_id',  'event_diff' ]
-     
-    
-    app_dmat_df = pd.DataFrame(app_dmat, columns = colums)  
-    enc_dmat = app_dmat_df
-       
-    
-    Enc_event_time = enc_dmat.groupby('user_id')['event_diff'].sum() \
-                                                .sort_values(ascending=True).head(10)   
-    event_time_df= pd.DataFrame(Enc_event_time) 
-    Index_event_time_df = event_time_df.reset_index()
-    
-    data = plotly.graph_objs.Bar(
-            y=Index_event_time_df.user_id,
-            x=Index_event_time_df.event_diff,
-            orientation='h',
-            name='Events' 
-            )
-    
-    return {'data': [data],'layout' : go.Layout(
-                                                title=dict(
-                                                    text="Event Time",
-                                                ),
-                                                margin = dict(l=200, r=50, b=50,
-                                                              t=100, pad=5),
-                                                xaxis=dict(automargin = True,
-                                                            title = 'Counts'),
-                                                yaxis=dict(
-                                                tickfont=dict(size=8))
-                                                )}
-    
+    return {'data': [data],
+            'layout' : go.Layout(title=dict(
+                                           text="Mobile Brands",
+                                            ),
+                                            height = 350,
+                                            font=dict(size=10),
+                                            xaxis=dict(automargin = True, 
+                                                       tickangle=45),
+                                            yaxis=dict(title = 'Counts')
+                                            )}
+
+
 ############### Daily Traffic    
 @app.callback(
         dash.dependencies.Output('Traffic-Details','figure'),
-        [dash.dependencies.Input('my-date-picker-range', 'start_date'),
-        dash.dependencies.Input('my-date-picker-range', 'end_date')])
+        [dash.dependencies.Input('Intermediate-Details', 'children') ])
     
-def traffic_data(start_date, end_date):
-    
-    credentials = service_account.Credentials.from_service_account_file(
-            os.path.join(dash_dir, "config/clane-8d862-fa96872fe9cb.json"))
-    
-    project_id = "clane-8d862"
-    client = bigquery.Client(credentials= credentials, project=project_id)
-    
-    start = dt.strptime(start_date[:10], '%Y-%m-%d').strftime("%Y%m%d")
-    
-    end = dt.strptime(end_date[:10], '%Y-%m-%d').strftime("%Y%m%d")
-    
-    QUERY = """
-    SELECT * FROM  `clane-8d862.analytics_183730768.events_*` 
-    where REPLACE(_TABLE_SUFFIX, "_", "-")
-          BETWEEN {0} AND {1}
-          """.format('"%s"' % start, '"%s"' % end)
+def traffic_data(datann):
+    datann = pd.read_json(datann)
+    app_dmat = [] 
+    for row in range(len(datann)):
         
-    query_job = client.query(QUERY)
-    
-    results = query_job.result()  # Waits for job to complete.
-    
-    datan = list(query_job.result(timeout=30))
-     
-    df = pd.DataFrame(data=[list(x.values()) for x in datan], 
-                            columns=list(datan[0].keys()))
-    
-    data = df
-    app_dmat = []
-    for row in range(len(data)):
-        
-        user_id = data.loc[row]['user_pseudo_id']
-        event_date = data.loc[row]['event_date']
+        user_id = datann.loc[row]['user_pseudo_id']
+        event_date = datann.loc[row]['event_date']
         
         app_dmat.append([user_id, event_date])
     
@@ -797,18 +588,23 @@ def traffic_data(start_date, end_date):
     xmin, xmax = np.min(Index_event_date_df.event_date.to_numpy()), \
                         np.max(Index_event_date_df.event_date.to_numpy())
     
-    return {'data': [data],'layout' : go.Layout(
-                                        title=dict(
-                                                    text="Daily Traffic",
-                                                ),
-                                        yaxis=dict(title = 'Counts'),
-                                      xaxis=dict(automargin = True, 
-                                            title = 'date',  
-                                            tickvals=[xmin, xmax]
-                                            ),
-                                            ),
-                                      } 
-    
+    return {'data': [data],
+            'layout' : go.Layout(
+                                title=dict(
+                                text="Daily Traffic",
+                                        ),
+                                margin = dict(l=70, r=40, b=70,
+                                                          t=50, pad=5),
+                                height = 330,
+                                font=dict( size=10),
+                                yaxis=dict(title = 'Counts'),
+                                xaxis=dict(automargin = True, 
+                                title = 'Date',  
+                                tickvals=[xmin, xmax]
+                                    ),
+                                    ),
+                              } 
+
 if __name__ == '__main__':
     app.run_server(debug=True)
     
