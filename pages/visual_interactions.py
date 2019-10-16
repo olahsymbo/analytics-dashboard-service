@@ -15,18 +15,21 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly
 import plotly.graph_objs as go  
+from app import app
 import dash_bootstrap_components as dbc 
+from pages import visual_dash, visual_interactions, commonmodules
 from dashboard_firebase import *
 import logging
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-
 client = db_config(dash_dir)
-
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.LUMEN])
-app.config.suppress_callback_exceptions = True
+#external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+#
+#client = db_config(dash_dir)
+#
+#app = dash.Dash(__name__, external_stylesheets=[dbc.themes.LUMEN])
+#app.config.suppress_callback_exceptions = True
 
 colors = {
             'background': '#f5f6f7',             #'#9KDBFF'
@@ -41,65 +44,56 @@ divBorder = {
 
 encoded_image = base64.b64encode(open(os.path.join(dash_dir, "img/clane.png"), 'rb').read())
 
-# returns top indicator div
-def indicator(color, text, id_value):
-    return html.Div(
-        [
-            html.P(id=id_value, className="indicator_value"),
-            html.P(text, className="twelve columns indicator_text"),
-        ],
-        className="tow rows indicator pretty_container",
-    )
-
-app.layout = html.Div(style={'backgroundColor': colors['background'], 
-                             "margin": "auto", "overflow": "auto"}, children=[
+layout = html.Div(style={'backgroundColor': colors['background'], 
+                             "margin": "auto"}, children=[
         
     html.Div([
-        dbc.Row([ 
-        
-        dbc.Col(
-        html.Img(src='data:image/png;base64,{}'.format(encoded_image.decode()),
-                style={'textAlign': "left", 
-                   'height' : '65%',
-                   'width' : '25%',  
-                   'padding-top' : 0,
-                   'padding-right' : 0, 
-                   "line-height":"1",
-                   "margin-bottom": "0.75rem",
-                   "margin-left": "0.45rem",
-                   "margin-top": "0.75rem",
-                   "fontColor":"#515151" 
-                   }
-                ),
-            ),
-        
-        dbc.Col(  
-            html.Nav(className = "nav nav-pills", children=[
-            html.A('Firebase DB', className="nav-item nav-link active btn", 
-                   href= os.path.join(dash_dir, '/visual_dash.py'))
+#        dbc.Row([ 
+#        
+#        dbc.Col(
+#        html.Img(src='data:image/png;base64,{}'.format(encoded_image.decode()),
+#                style={'textAlign': "left", 
+#                   'height' : '65%',
+#                   'width' : '25%',  
+#                   'padding-top' : 0,
+#                   'padding-right' : 0, 
+#                   "line-height":"1",
+#                   "margin-bottom": "0.75rem",
+#                   "margin-left": "0.45rem",
+#                   "margin-top": "0.75rem",
+#                   "fontColor":"#515151" 
+#                   }
+#                ),
+#            ),
+#        
+#        dbc.Col(  
+#            html.Nav(className = "nav nav-pills", children=[
+#            html.A('Firebase DB', className="nav-item nav-link active btn", 
+#                   href= os.path.join(dash_dir, '/visual_dash.py')),
 #            html.A('Interactions', className="nav-item nav-link btn", 
 #                   href= os.path.join(dash_dir, '/visual_interactions.py'))
-                    ],
-            style={'textAlign': "right", 
-                   "margin": "1px", 
-                   "float":"right",
-                   "padding": "0px", 
-                   "font-family":"Helvetica Neue, Helvetica, Arial", 
-                   "font-size":"2rem", 
-                   "fontWeight": "bold", 
-                   "line-height":"1",
-                   "margin-bottom": "0.75rem",
-                   "margin-top": "0.80rem",
-                   "fontColor":"#515151" 
-                   }
-            ),
-            ),
-            
-            ]),
+#                    ],
+#            style={'textAlign': "right", 
+#                   "margin": "1px", 
+#                   "float":"right",
+#                   "padding": "0px", 
+#                   "font-family":"Helvetica Neue, Helvetica, Arial", 
+#                   "font-size":"2rem", 
+#                   "fontWeight": "bold", 
+#                   "line-height":"1",
+#                   "margin-bottom": "0.75rem",
+#                   "margin-top": "0.80rem",
+#                   "fontColor":"#515151" 
+#                   }
+#            ),
+#            ),
+#            
+#            ]),
+            commonmodules.get_header(),
+            commonmodules.get_menu(),
             ],
             style={'backgroundColor':'#fcfcfc'},            
-            ),
-    html.Br(), 
+            ), 
     
     html.Div([
             dcc.DatePickerRange(
@@ -113,8 +107,7 @@ app.layout = html.Div(style={'backgroundColor': colors['background'],
     dcc.Loading(
     html.Div(id='Intermediate-Details', style={'display': 'none'}), type="circle"),    
     ]),
-    
-    html.Br(),
+     
     html.Br(),
 
 ############################################################################### 
@@ -309,6 +302,37 @@ def db_data(start_date, end_date):
     return datann.to_json()
 
 
+############### news-service DB Loader 
+    
+#@app.callback(
+#        dash.dependencies.Output('Intermediate-Details','children'),
+#        [dash.dependencies.Input('my-date-picker-range', 'start_date'),
+#        dash.dependencies.Input('my-date-picker-range', 'end_date')])
+#    
+#def db_data(start_date, end_date):
+#    
+#    start = dt.strptime(start_date[:10], '%Y-%m-%d').strftime("%Y%m%d")
+#    
+#    end = dt.strptime(end_date[:10], '%Y-%m-%d').strftime("%Y%m%d")
+#    
+#    QUERY = """
+#    SELECT * FROM  `clane-8d862.analytics_183730768.events_*` 
+#    where REPLACE(_TABLE_SUFFIX, "_", "-")
+#          BETWEEN {0} AND {1}
+#          """.format('"%s"' % start, '"%s"' % end)
+#        
+#    query_job = client.query(QUERY)
+#    print("firebase data loaded")
+#    
+#    datan = list(query_job.result(timeout=100))
+#     
+#    df = pd.DataFrame(data=[list(x.values()) for x in datan], 
+#                            columns=list(datan[0].keys()))
+#    datann = df
+#    
+#    return datann.to_json()
+
+
 ############### Unique Users
 @app.callback(
         dash.dependencies.Output('Unique-Users','children'),
@@ -371,7 +395,8 @@ def churn_number_data(datann):
      
     churn_rate = ((app_remove.shape[0])/Enc_users)*100
 
-    return '{0}%'.format((round(churn_rate,2)))
+#    return '{0}%'.format((round(churn_rate,2)))
+    return round(churn_rate,2)
 
     
 ############### Country Details
@@ -604,7 +629,8 @@ def traffic_data(datann):
                                     ),
                                     ),
                               } 
-
-if __name__ == '__main__':
-    app.run_server(debug=True)
+    
+#
+#if __name__ == '__main__':
+#    app.run_server(debug=True)
     
