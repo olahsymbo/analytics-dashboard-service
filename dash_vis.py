@@ -10,26 +10,28 @@ from datetime import datetime as dt
 import base64
 import pandas as pd
 import numpy as np
+import json
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
+import dash_table
 import plotly
 import plotly.graph_objs as go  
-from app import app
-import dash_bootstrap_components as dbc 
-from pages import visual_dash, visual_interactions, commonmodules
+import dash_bootstrap_components as dbc  
+from TableModels.Artc import Articles 
+from TableModels.Intr import Interactions 
 from dashboard_firebase import *
+from pages import commonmodules
 import logging
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
+external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+
 client = db_config(dash_dir)
-#external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-#
-#client = db_config(dash_dir)
-#
-#app = dash.Dash(__name__, external_stylesheets=[dbc.themes.LUMEN])
-#app.config.suppress_callback_exceptions = True
+
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.LUMEN])
+app.config.suppress_callback_exceptions = True
 
 colors = {
             'background': '#f5f6f7',             #'#9KDBFF'
@@ -42,58 +44,25 @@ divBorder = {
              'border-radius': '5px'
             }
 
-encoded_image = base64.b64encode(open(os.path.join(dash_dir, "img/clane.png"), 'rb').read())
+def myconverter(o):
+ if isinstance(o, dt):
+    return o.__str__()
 
-layout = html.Div(style={'backgroundColor': colors['background'], 
+encoded_image = base64.b64encode(open(os.path.join(dash_dir, "img/clane.png"), 
+                                                                  'rb').read())
+ 
+
+app.layout = html.Div(style={'backgroundColor': colors['background'], 
                              "margin": "auto"}, children=[
         
     html.Div([
-#        dbc.Row([ 
-#        
-#        dbc.Col(
-#        html.Img(src='data:image/png;base64,{}'.format(encoded_image.decode()),
-#                style={'textAlign': "left", 
-#                   'height' : '65%',
-#                   'width' : '25%',  
-#                   'padding-top' : 0,
-#                   'padding-right' : 0, 
-#                   "line-height":"1",
-#                   "margin-bottom": "0.75rem",
-#                   "margin-left": "0.45rem",
-#                   "margin-top": "0.75rem",
-#                   "fontColor":"#515151" 
-#                   }
-#                ),
-#            ),
-#        
-#        dbc.Col(  
-#            html.Nav(className = "nav nav-pills", children=[
-#            html.A('Firebase DB', className="nav-item nav-link active btn", 
-#                   href= os.path.join(dash_dir, '/visual_dash.py')),
-#            html.A('Interactions', className="nav-item nav-link btn", 
-#                   href= os.path.join(dash_dir, '/visual_interactions.py'))
-#                    ],
-#            style={'textAlign': "right", 
-#                   "margin": "1px", 
-#                   "float":"right",
-#                   "padding": "0px", 
-#                   "font-family":"Helvetica Neue, Helvetica, Arial", 
-#                   "font-size":"2rem", 
-#                   "fontWeight": "bold", 
-#                   "line-height":"1",
-#                   "margin-bottom": "0.75rem",
-#                   "margin-top": "0.80rem",
-#                   "fontColor":"#515151" 
-#                   }
-#            ),
-#            ),
-#            
-#            ]),
+
             commonmodules.get_header(),
-            commonmodules.get_menu(),
+#            commonmodules.get_menu(),
             ],
             style={'backgroundColor':'#fcfcfc'},            
             ), 
+    html.Br(),
     
     html.Div([
             dcc.DatePickerRange(
@@ -105,12 +74,15 @@ layout = html.Div(style={'backgroundColor': colors['background'],
                 end_date=dt(2019, 8, 30)),
     html.Div(id='output-container-date-picker-range'),
     dcc.Loading(
-    html.Div(id='Intermediate-Details', style={'display': 'none'}), type="circle"),    
+    html.Div(id='Intermediate-Details', style={'display': 'none'}), 
+                                                        type="circle"),   
+    html.Div(id='Intermediate-Details1', style={'display': 'none'}),   
+    html.Div(id='Intermediate-Details2', style={'display': 'none'}),  
     ]),
      
     html.Br(),
 
-############################################################################### 
+######################################################################  
 
 html.Div([     
             html.Div([ 
@@ -118,14 +90,15 @@ html.Div([
                         html.Br(),
                         html.Div(
                                 [ 
-                                html.P("Unique Users"),
+                                html.P("App Users"),
                                 html.H2(id = "Unique-Users",
                                         className = "info_text" 
                                    ), 
                                 ], style={'textAlign': 'center', 
                                           'fontSize': 15, 
                                           'fontColor':'blue',
-                                          'font-family': 'Helvetica Neue, Helvetica, Arial'
+                                          'font-family': 'Helvetica Neue, \
+                                                      Helvetica, Arial'
                                         }
                             ),
                                         
@@ -139,7 +112,8 @@ html.Div([
                                    ), 
                             ], style={'textAlign': 'center', 
                                       'fontSize': 15,
-                                      'font-family': 'Helvetica Neue, Helvetica, Arial' 
+                                      'font-family': 'Helvetica Neue, \
+                                                      Helvetica, Arial' 
                                       }
                         ),
                          
@@ -153,7 +127,8 @@ html.Div([
                                    ), 
                             ], style={'textAlign': 'center', 
                                       'fontSize': 15, 
-                                      'font-family': 'Helvetica Neue, Helvetica, Arial'
+                                      'font-family': 'Helvetica Neue, \
+                                                      Helvetica, Arial'
                                       }
                         ),
                         html.Br(),
@@ -268,6 +243,60 @@ html.Div([
             style={'paddingBottom' : '5', "overflow": "auto"}),
  
         html.Br(),   
+        html.Br(), 
+    
+    html.Div([
+            html.H6('-- likes and bookmarks --',
+            style={'textAlign' : 'center', 'opacity': 0.3}
+                    )
+            ]),
+            
+    html.Br(), 
+    
+    html.Div([   
+
+#### Total Interactions Details 
+            html.Div([ 
+            dcc.Loading(
+            dcc.Graph(
+            id='Total-Interactions')
+            ),
+            ],style={'backgroundColor':colors['div_bg'], 
+                 'border':divBorder['border'],
+                 'border-radius':divBorder['border-radius'], 
+                 'display' : 'inline-block', 
+                 'boxSizing' : 'border-box',
+                 'float':'left',
+                 'width' : '60%',
+                 'box-shadow' : '2px 2px 2px lightgrey',
+                 'position': 'relative'
+                 }), 
+        
+#### User-Interactions Details
+            html.Div([ 
+            dcc.Loading(
+            dcc.Graph(
+            id='User-Interactions')
+            ),
+            ],style={'backgroundColor':colors['div_bg'], 
+                 'border':divBorder['border'],
+                 'border-radius':divBorder['border-radius'], 
+                 'display' : 'inline-block', 
+                 'boxSizing' : 'border-box',
+                 'float':'right',
+                 'width' : '38%',
+                 'box-shadow' : '2px 2px 2px lightgrey',
+                 'position': 'relative'
+                 }),
+ 
+            ],  
+            style={'paddingBottom' : '5', "overflow": "auto"}),
+    
+        html.Br(),
+        
+    html.Div(id= 'Article-Interactions'), 
+    
+    html.Br(),
     ], 
     className = "container")
 
@@ -299,38 +328,59 @@ def db_data(start_date, end_date):
                             columns=list(datan[0].keys()))
     datann = df
     
-    return datann.to_json()
+    return datann.to_json() 
 
 
-############### news-service DB Loader 
+############### DB Loader Articles
+@app.callback(
+        dash.dependencies.Output('Intermediate-Details2','children'),
+        [dash.dependencies.Input('my-date-picker-range', 'start_date'),
+        dash.dependencies.Input('my-date-picker-range', 'end_date')])
     
-#@app.callback(
-#        dash.dependencies.Output('Intermediate-Details','children'),
-#        [dash.dependencies.Input('my-date-picker-range', 'start_date'),
-#        dash.dependencies.Input('my-date-picker-range', 'end_date')])
-#    
-#def db_data(start_date, end_date):
-#    
-#    start = dt.strptime(start_date[:10], '%Y-%m-%d').strftime("%Y%m%d")
-#    
-#    end = dt.strptime(end_date[:10], '%Y-%m-%d').strftime("%Y%m%d")
-#    
-#    QUERY = """
-#    SELECT * FROM  `clane-8d862.analytics_183730768.events_*` 
-#    where REPLACE(_TABLE_SUFFIX, "_", "-")
-#          BETWEEN {0} AND {1}
-#          """.format('"%s"' % start, '"%s"' % end)
-#        
-#    query_job = client.query(QUERY)
-#    print("firebase data loaded")
-#    
-#    datan = list(query_job.result(timeout=100))
-#     
-#    df = pd.DataFrame(data=[list(x.values()) for x in datan], 
-#                            columns=list(datan[0].keys()))
-#    datann = df
-#    
-#    return datann.to_json()
+def db_articles(start_date, end_date):
+ 
+    ArticleSet = Articles.query.filter(Articles.status_id == 7).all()
+    
+    article_table = []
+    for Article in ArticleSet:
+        cont = [Article.id, Article.title, Article.content, Article.updated_at]
+        article_table.append(cont)
+            
+    article_table_df = pd.DataFrame(article_table, 
+                           columns=['id','title',
+                                    'content', 'updated_at'])
+ 
+    
+    return json.dumps(article_table, default = myconverter)
+
+############### DB Loader Interactions
+@app.callback(
+        dash.dependencies.Output('Intermediate-Details1','children'),
+        [dash.dependencies.Input('my-date-picker-range', 'start_date'),
+        dash.dependencies.Input('my-date-picker-range', 'end_date')])
+    
+def db_interactions(start_date, end_date):
+    
+    start = dt.strptime(start_date[:10], '%Y-%m-%d').strftime("%Y%m%d")
+    
+    end = dt.strptime(end_date[:10], '%Y-%m-%d').strftime("%Y%m%d")
+    
+    Interactions_df = Interactions.query.filter(Interactions.updated_at <= end,
+                                               Interactions.updated_at >= 
+                                                                   start).all()
+    interactions_table = []        
+    for intr in Interactions_df:
+        cont = [intr.id, intr.user_id, intr.article_id, 
+                intr.interaction_type_id,intr.updated_at]
+        interactions_table.append(cont)
+            
+    
+    interactions_table_df = pd.DataFrame(interactions_table, 
+                           columns=['id','user_id',
+                                    'article_id', 'interaction_type_id', 
+                                                                'updated_at'])
+    
+    return json.dumps(interactions_table, default = myconverter)
 
 
 ############### Unique Users
@@ -368,7 +418,7 @@ def total_event_data(datann):
     
     return datann.shape[0]
 
-############### Total Number Count
+############### Churn Rate
 @app.callback(
         dash.dependencies.Output('Churn-Number-Details','children'),
         [dash.dependencies.Input('Intermediate-Details', 'children') ])
@@ -394,9 +444,9 @@ def churn_number_data(datann):
     app_remove = app_dmat_df[app_dmat_df['event_name'] == 'app_remove']
      
     churn_rate = ((app_remove.shape[0])/Enc_users)*100
-
-#    return '{0}%'.format((round(churn_rate,2)))
-    return round(churn_rate,2)
+    
+    return '{0}%'.format((round(churn_rate,2)))
+#    return round(churn_rate,2)
 
     
 ############### Country Details
@@ -621,16 +671,134 @@ def traffic_data(datann):
                                 margin = dict(l=70, r=40, b=70,
                                                           t=50, pad=5),
                                 height = 330,
-                                font=dict( size=10),
-                                yaxis=dict(title = 'Counts'),
-                                xaxis=dict(automargin = True, 
+                                font=dict( size=10), 
+                                yaxis=dict(title = 'Counts',
+                                           showgrid = False
+                                           ),
+                                xaxis=dict(automargin = True,  
                                 title = 'Date',  
                                 tickvals=[xmin, xmax]
                                     ),
                                     ),
                               } 
+
+############### User_id Interactions
+@app.callback(
+        dash.dependencies.Output('User-Interactions','figure'),
+        [dash.dependencies.Input('Intermediate-Details1', 'children') ])
     
-#
-#if __name__ == '__main__':
-#    app.run_server(debug=True)
+def user_interactions_data(interactions_table): 
+    interactions = pd.DataFrame(eval(str(interactions_table)), 
+                                            columns=['id','user_id',
+                                    'article_id', 'interaction_type_id', 
+                                                            'updated_at'])
+    
+    interactions_df = interactions.groupby('user_id')[
+                                            'interaction_type_id'].count().head(10) 
+    
+    intr_df = pd.DataFrame(interactions_df) 
+    Index_intr_df = intr_df.reset_index()  
+    
+    data = plotly.graph_objs.Bar(
+            y=Index_intr_df.user_id,
+            x=Index_intr_df.interaction_type_id, 
+            orientation='h',            
+            name='User_Interactions' 
+            )
+    
+    return {'data': [data],
+            'layout' : go.Layout(title=dict(
+                                            text="Top Users (Interactions)",
+                                            ), 
+                                            font=dict(size=10),
+                                            height = 350,
+                                            xaxis=dict(automargin = True, 
+                                                       tickangle=45),
+                                            yaxis=dict(title = 'Counts')
+                                            )}
+
+
+############### Interactions Details
+@app.callback(
+        dash.dependencies.Output('Total-Interactions','figure'),
+        [dash.dependencies.Input('Intermediate-Details1', 'children') ])
+    
+def total_interactions_data(interactions_table):
+#    interactions = pd.read_json(eval(str(interactions_table)))
+    interactions = pd.DataFrame(eval(str(interactions_table)), 
+                                            columns=['id','user_id',
+                                    'article_id', 'interaction_type_id', 
+                                                            'updated_at'])
+    
+    interactions_df = interactions.groupby('interaction_type_id')[
+                                                        'user_id'].count() 
+    
+    intr_df = pd.DataFrame(interactions_df) 
+    Index_intr_df = intr_df.reset_index() 
+    Index_intr_df['interaction_type_id'] = Index_intr_df[
+                                    'interaction_type_id'].map({1: 'likes', 2: 
+                                                    'bookmarks', 3: 'share'})
+    
+    data = plotly.graph_objs.Bar(
+            x=Index_intr_df.interaction_type_id,
+            y=Index_intr_df.user_id, 
+            name='Interactions' 
+            )
+    
+    return {'data': [data],
+            'layout' : go.Layout(title=dict(
+                                            text="Articles Interactions",
+                                            ), 
+                                            font=dict(size=10),
+                                            height = 350,
+                                            xaxis=dict(automargin = True, 
+                                                       tickangle=45),
+                                            yaxis=dict(title = 'Counts')
+                                            )}
+
+
+############### Top liked Articles
+@app.callback(
+        dash.dependencies.Output('Article-Interactions', 'children'),
+        [dash.dependencies.Input('Intermediate-Details1', 'children'),
+        dash.dependencies.Input('Intermediate-Details2', 'children')])
+    
+def articles_interactions_data(interactions_table, article_table): 
+    
+    interactions = pd.DataFrame(eval(str(interactions_table)), 
+                                            columns=['id','user_id',
+                                    'article_id', 'interaction_type_id', 
+                                                            'updated_at'])
+    
+    interactions_df = interactions.groupby('article_id')[
+                                            'interaction_type_id'] \
+                                            .count() \
+                                            .sort_values(ascending=False) \
+                                            .head(10) 
+    
+    intr_df = pd.DataFrame(interactions_df) 
+    Index_intr_df = intr_df.reset_index()  
+    user_df = interactions.loc[interactions['article_id'].isin(Index_intr_df['article_id'])] 
+    
+    articles = pd.DataFrame(eval(str(article_table)), 
+                                            columns=['id','title',
+                                    'content', 'updated_at'])
+    
+    article_df = articles.loc[articles['id'].isin(Index_intr_df['article_id'])]   
+    article_df = pd.DataFrame(article_df.drop('content', 1)) 
+    article_df = pd.DataFrame(article_df.drop('updated_at', 1)) 
+    article_df = article_df.join(user_df['user_id'])
+    
+    return html.Div([
+			dash_table.DataTable(
+				id='table',
+				columns=[{"name": i, "id": i} for i in article_df.columns],
+				data=article_df.to_dict("rows"),
+				style_cell={'width': 'auto',
+				'height': 'auto',
+				'textAlign': 'left'})
+			])
+                                            
+if __name__ == '__main__':
+    app.run_server(debug=True)
     

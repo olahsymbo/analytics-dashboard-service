@@ -10,14 +10,18 @@ from datetime import datetime as dt
 import base64
 import pandas as pd
 import numpy as np
+import json
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly
 import plotly.graph_objs as go  
 import dash_bootstrap_components as dbc 
+from app import app
+from TableModels.Artc import Articles 
+from TableModels.Intr import Interactions 
 from dashboard_firebase import *
-from pages import visual_dash, visual_interactions, commonmodules
+from pages import commonmodules
 import logging
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
@@ -40,6 +44,10 @@ divBorder = {
              'border-radius': '5px'
             }
 
+def myconverter(o):
+ if isinstance(o, dt):
+    return o.__str__()
+
 encoded_image = base64.b64encode(open(os.path.join(dash_dir, "img/clane.png"), 'rb').read())
  
 
@@ -47,49 +55,9 @@ layout = html.Div(style={'backgroundColor': colors['background'],
                              "margin": "auto"}, children=[
         
     html.Div([
-#        dbc.Row([ 
-#        
-#        dbc.Col(
-#        html.Img(src='data:image/png;base64,{}'.format(encoded_image.decode()),
-#                style={'textAlign': "left", 
-#                   'height' : '65%',
-#                   'width' : '25%',  
-#                   'padding-top' : 0,
-#                   'padding-right' : 0, 
-#                   "line-height":"1",
-#                   "margin-bottom": "0.75rem",
-#                   "margin-left": "0.45rem",
-#                   "margin-top": "0.75rem",
-#                   "fontColor":"#515151" 
-#                   }
-#                ),
-#            ),
-#        
-#        dbc.Col(  
-#            html.Nav(className = "nav nav-pills", children=[
-#            html.A('Firebase DB', className="nav-item nav-link active btn", 
-#                   href= os.path.join(dash_dir, '/visual_dash.py')),
-#            html.A('Interactions', className="nav-item nav-link btn", 
-#                   href= os.path.join(dash_dir, '/visual_interactions.py'))
-#                    ],
-#            style={'textAlign': "right", 
-#                   "margin": "1px", 
-#                   "float":"right",
-#                   "padding": "0px", 
-#                   "font-family":"Helvetica Neue, Helvetica, Arial", 
-#                   "font-size":"2rem", 
-#                   "fontWeight": "bold", 
-#                   "line-height":"1",
-#                   "margin-bottom": "0.75rem",
-#                   "margin-top": "0.80rem",
-#                   "fontColor":"#515151" 
-#                   }
-#            ),
-#            ),
-#            
-#            ]),
+
             commonmodules.get_header(),
-            commonmodules.get_menu(),
+#            commonmodules.get_menu(),
             ],
             style={'backgroundColor':'#fcfcfc'},            
             ), 
@@ -267,6 +235,46 @@ html.Div([
             style={'paddingBottom' : '5', "overflow": "auto"}),
  
         html.Br(),   
+        
+        html.Div([   
+
+#### Total Interactions Details 
+            html.Div([ 
+            dcc.Loading(
+            dcc.Graph(
+            id='Total-Interactions')
+            ),
+            ],style={'backgroundColor':colors['div_bg'], 
+                 'border':divBorder['border'],
+                 'border-radius':divBorder['border-radius'], 
+                 'display' : 'inline-block', 
+                 'boxSizing' : 'border-box',
+                 'float':'left',
+                 'width' : '60%',
+                 'box-shadow' : '2px 2px 2px lightgrey',
+                 'position': 'relative'
+                 }), 
+        
+#### Interactions Traffic Details
+            html.Div([ 
+            dcc.Loading(
+            dcc.Graph(
+            id='Interactions-Traffic-Details')
+            ),
+            ],style={'backgroundColor':colors['div_bg'], 
+                 'border':divBorder['border'],
+                 'border-radius':divBorder['border-radius'], 
+                 'display' : 'inline-block', 
+                 'boxSizing' : 'border-box',
+                 'float':'right',
+                 'width' : '38%',
+                 'box-shadow' : '2px 2px 2px lightgrey',
+                 'position': 'relative'
+                 }),
+ 
+            ],  
+            style={'paddingBottom' : '5', "overflow": "auto"}),
+    
     ], 
     className = "container")
 
@@ -298,8 +306,33 @@ def db_data(start_date, end_date):
                             columns=list(datan[0].keys()))
     datann = df
     
-    return datann.to_json()
-
+#########
+    ArticleSet = Articles.query.filter(Articles.status_id == 7).all()
+    
+    article_table = []
+    for Article in ArticleSet:
+        cont = [Article.id, Article.title, Article.content, Article.updated_at]
+        article_table.append(cont)
+            
+    article_table_df = pd.DataFrame(article_table, 
+                           columns=['id','title',
+                                    'content', 'updated_at'])
+    df1 = article_table_df.to_json()
+    
+    Interactions_df = Interactions.query.filter(Interactions.updated_at <= end,
+                                               Interactions.updated_at >= start).all()
+    interactions_table = []        
+    for intr in Interactions_df:
+        cont = [intr.id, intr.user_id, intr.article_id, 
+                intr.interaction_type_id,intr.updated_at]
+        interactions_table.append(cont)
+            
+    
+    interactions_table_df = pd.DataFrame(interactions_table, 
+                           columns=['id','user_id',
+                                    'article_id', 'interaction_type_id', 'updated_at'])
+    
+    return datann.to_json(), json.dumps(interactions_table, default = myconverter)
 
 ############### news-service DB Loader 
     
@@ -620,15 +653,99 @@ def traffic_data(datann):
                                 margin = dict(l=70, r=40, b=70,
                                                           t=50, pad=5),
                                 height = 330,
-                                font=dict( size=10),
-                                yaxis=dict(title = 'Counts'),
-                                xaxis=dict(automargin = True, 
+                                font=dict( size=10), 
+                                yaxis=dict(title = 'Counts',
+                                           showgrid = False
+                                           ),
+                                xaxis=dict(automargin = True,  
+                                title = 'Date',  
+                                tickvals=[xmin, xmax]
+                                    ),
+                                    ),
+                              } 
+
+
+############### Daily Traffic    
+@app.callback(
+        dash.dependencies.Output('Interactions-Traffic-Details','figure'),
+        [dash.dependencies.Input('Intermediate-Details', 'children')])
+    
+def interactions_traffic_data(interactions_table):
+    interactions = pd.DataFrame(eval(str(interactions_table)), columns=['id','user_id',
+                                    'article_id', 'interaction_type_id', 'updated_at'])
+    
+    print(interactions)  
+     
+    interactions['updated_at'] =  pd.to_datetime(interactions['updated_at'][:10], 
+               format='%Y-%m-%d') 
+    
+    interactions['updated_at'] = interactions['updated_at'].dt.date
+    enc_dmat = interactions 
+    
+    Enc_event_date = enc_dmat.groupby('updated_at').size() 
+    event_date_df= pd.DataFrame(Enc_event_date) 
+    Index_event_date_df = event_date_df.reset_index()
+    Index_event_date_df.columns = ['updated_at', 'counts']
+    
+    data = plotly.graph_objs.Scatter(x=Index_event_date_df.updated_at, 
+                                     y=Index_event_date_df.counts)
+    
+    xmin, xmax = np.min(Index_event_date_df.updated_at.to_numpy()), \
+                        np.max(Index_event_date_df.updated_at.to_numpy())
+    
+    return {'data': [data],
+            'layout' : go.Layout(  
+                                title=dict(
+                                text="Daily Traffic",
+                                        ),
+                                margin = dict(l=70, r=40, b=70,
+                                                          t=50, pad=5),
+                                height = 330,
+                                font=dict( size=10), 
+                                yaxis=dict(title = 'Counts',
+                                           showgrid = False
+                                           ),
+                                xaxis=dict(automargin = True,  
                                 title = 'Date',  
                                 tickvals=[xmin, xmax]
                                     ),
                                     ),
                               } 
     
+############### Interactions Details
+@app.callback(
+        dash.dependencies.Output('Total-Interactions','figure'),
+        [dash.dependencies.Input('Intermediate-Details', 'children') ])
+    
+def total_interactions_data(interactions_table):
+#    interactions = pd.read_json(eval(str(interactions_table)))
+    interactions = pd.DataFrame(eval(str(interactions_table)), columns=['id','user_id',
+                                    'article_id', 'interaction_type_id', 'updated_at'])
+#    print(interactions) 
+    interactions_df = interactions.groupby('interaction_type_id')['user_id'].count() 
+    
+    intr_df = pd.DataFrame(interactions_df) 
+    Index_intr_df = intr_df.reset_index() 
+    
+    
+    data = plotly.graph_objs.Bar(
+            x=Index_intr_df.interaction_type_id,
+            y=Index_intr_df.user_id,
+            name='Interactions' 
+            )
+    
+    return {'data': [data],
+            'layout' : go.Layout(title=dict(
+                                            text="Interactions",
+                                            ), 
+                                            font=dict(size=10),
+                                            height = 350,
+                                            xaxis=dict(automargin = True, 
+                                                       tickangle=45),
+                                            yaxis=dict(title = 'Counts')
+                                            )}
+
+
 #
 #if __name__ == '__main__':
 #    app.run_server(debug=True)

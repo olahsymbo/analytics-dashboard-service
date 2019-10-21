@@ -5,21 +5,16 @@ import os
 import inspect
 app_path = inspect.getfile(inspect.currentframe())
 dash_dir = os.path.realpath(os.path.dirname(app_path))
+dir_path = os.path.dirname(dash_dir)
 
 import dash_core_components as dcc
 import dash_html_components as html
-import base64 
-from dash.dependencies import Input, Output
+import base64  
 
-encoded_image = base64.b64encode(open(os.path.join("/Users/o.arigbabu/Clane-Code/clane-services-dashboard", "img/clane.png"), 'rb').read())
+encoded_image = base64.b64encode(open(os.path.join(dir_path, "img/clane.png"), 'rb').read())
 
 def get_header():
-    header = html.Div([
-
-#        html.Div([
-#            html.H1(
-#                'Clane DashBoard')
-#        ], className="twelve columns padded"), 
+    header = html.Div([ 
         
         html.Img(src='data:image/png;base64,{}'.format(encoded_image.decode()),
                 style={'textAlign': "left", 
@@ -29,11 +24,20 @@ def get_header():
                    'padding-right' : 0, 
                    "line-height":"1",
                    "margin-bottom": "0.85rem",
-                   "margin-left": "1.01rem",
+                   "margin-left": "1.25rem",
                    "margin-top": "0.75rem",
                    "fontColor":"#515151" 
                    }
                 ), 
+        html.H6('ANALYTICS',
+                style={ 
+                  "font-weight": "bold",
+                   "margin-top": "2.45rem",
+                   "margin-left": "0.25rem",
+                   'padding-right' : 0, 
+                   "line-height":"1",
+                   "fontColor":"#B65151" 
+                   }),
         html.Br(),
         html.Br()
 
@@ -43,9 +47,9 @@ def get_header():
 def get_menu():
     menu = html.Div([
 
-        dcc.Link('Home   ', href='/', className="p-2 text-dark"),
+#        dcc.Link('Home   ', href='/', className="p-2 text-dark"),
         dcc.Link('Firebase   ', href='/visual_dash', className="p-2 text-dark"),
-        dcc.Link('Interactions   ', href='/visual_interactions', className="p-2 text-dark"), 
+#        dcc.Link('Interactions   ', href='/visual_interactions', className="p-2 text-dark"), 
 
     ], className="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm")
     return menu    

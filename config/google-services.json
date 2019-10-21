@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "475788789173",
+    "firebase_url": "https://clane-8d862.firebaseio.com",
+    "project_id": "clane-8d862",
+    "storage_bucket": "clane-8d862.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:475788789173:android:a979dda3a6f6b3c9",
+        "android_client_info": {
+          "package_name": "com.clane.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "475788789173-f5ebuhql1akhffd6vdth11notiuqb7t8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCeJFsSybqI-Ii1lhvVZE2_HvNSs0kE0xw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "475788789173-f5ebuhql1akhffd6vdth11notiuqb7t8.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "475788789173-ve4aldr0jd7lddl1qcu8s02gsnutqi6k.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.clane.app",
+                "app_store_id": "1436475431"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
