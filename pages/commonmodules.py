@@ -49,7 +49,7 @@ def get_menu():
 #        'margin':5
 #        }
     
-    menu = html.Div([
+    menu = html.Div([ 
         
         dcc.Link(' Firebase   ', href='/visual_dash', className="p-2 text-dark"),
         dcc.Link('News   ', href='/news', className="p-2 text-dark"),

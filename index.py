@@ -13,7 +13,7 @@ import dash_html_components as html
 from app import app
 from pages import news, visual_dash
 from dashboard_firebase import *
-import logging
+import logging 
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 

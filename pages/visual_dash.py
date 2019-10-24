@@ -112,7 +112,7 @@ html.Div([
                                         style={'textAlign' : 'center', 
                                                'opacity': 1 }
                                    ), 
-                            ], style={'textAlign': 'center', 
+                            ], style={'textAlign': 'center',  
                                       'fontSize': 15,
                                       'font-family': 'Helvetica Neue, \
                                                       Helvetica, Arial' 

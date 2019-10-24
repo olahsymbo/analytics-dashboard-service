@@ -77,7 +77,7 @@ layout = html.Div(style={'backgroundColor': colors['background'],
                      'boxSizing' : 'border-box',
                      'float':'left',
                      'width' : '60%',
-                     'box-shadow' : '2px 2px 2px lightgrey',
+                     'box-shadow' : '2px 2px 2px lightgrey', 
                      'position': 'relative'
                      }), 
             
