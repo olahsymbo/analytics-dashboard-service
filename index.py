@@ -11,7 +11,7 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html 
 from app import app
-from pages import home, visual_dash, visual_interactions
+from pages import news, visual_dash
 from dashboard_firebase import *
 import logging
 log = logging.getLogger('werkzeug')
@@ -39,12 +39,12 @@ app.layout = html.Div([
 @app.callback(dash.dependencies.Output('page-content', 'children'),
               [dash.dependencies.Input('url', 'pathname')])
 def display_page(pathname):
-#    if pathname == '/':
-#         return home.layout
     if pathname == '/visual_dash':
-         return visual_dash.layout
-#    elif pathname == '/visual_interactions':
-#         return visual_interactions.layout
+         return visual_dash.layout    
+    elif pathname == '/news':
+         return news.layout 
+#    elif pathname == '/':
+#         return home.layout
     else:
         return '404'
 

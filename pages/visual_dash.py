@@ -12,6 +12,7 @@ import pandas as pd
 import numpy as np
 import json
 import dash
+import dash_table
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly
@@ -26,12 +27,12 @@ import logging
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+#external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 client = db_config(dash_dir)
 
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.LUMEN])
-app.config.suppress_callback_exceptions = True
+#app = dash.Dash(__name__, external_stylesheets=[dbc.themes.LUMEN])
+#app.config.suppress_callback_exceptions = True
 
 colors = {
             'background': '#f5f6f7',             #'#9KDBFF'
@@ -49,7 +50,6 @@ def myconverter(o):
     return o.__str__()
 
 encoded_image = base64.b64encode(open(os.path.join(dash_dir, "img/clane.png"), 'rb').read())
- 
 
 layout = html.Div(style={'backgroundColor': colors['background'], 
                              "margin": "auto"}, children=[
@@ -57,10 +57,11 @@ layout = html.Div(style={'backgroundColor': colors['background'],
     html.Div([
 
             commonmodules.get_header(),
-#            commonmodules.get_menu(),
+            commonmodules.get_menu(),
             ],
             style={'backgroundColor':'#fcfcfc'},            
             ), 
+    html.Br(),
     
     html.Div([
             dcc.DatePickerRange(
@@ -72,12 +73,15 @@ layout = html.Div(style={'backgroundColor': colors['background'],
                 end_date=dt(2019, 8, 30)),
     html.Div(id='output-container-date-picker-range'),
     dcc.Loading(
-    html.Div(id='Intermediate-Details', style={'display': 'none'}), type="circle"),    
+    html.Div(id='Intermediate-Details', style={'display': 'none'}), 
+                                                        type="circle"),   
+    html.Div(id='Intermediate-Details1', style={'display': 'none'}),   
+    html.Div(id='Intermediate-Details2', style={'display': 'none'}),  
     ]),
      
     html.Br(),
 
-############################################################################### 
+######################################################################  
 
 html.Div([     
             html.Div([ 
@@ -85,14 +89,16 @@ html.Div([
                         html.Br(),
                         html.Div(
                                 [ 
-                                html.P("Unique Users"),
+                                html.P("App Users"),
                                 html.H2(id = "Unique-Users",
-                                        className = "info_text" 
+                                        className = "info_text",
+                                        style={'textAlign' : 'center', 
+                                               'opacity': 1}
                                    ), 
                                 ], style={'textAlign': 'center', 
-                                          'fontSize': 15, 
-                                          'fontColor':'blue',
-                                          'font-family': 'Helvetica Neue, Helvetica, Arial'
+                                          'fontSize': 15,  
+                                          'font-family': 'Helvetica Neue, \
+                                                      Helvetica, Arial'
                                         }
                             ),
                                         
@@ -102,11 +108,14 @@ html.Div([
                                 [ 
                                 html.P("Total Events"),
                                 html.H2(id = "Total-Event-Details",
-                                        className = "info_text" 
+                                        className = "info_text" ,
+                                        style={'textAlign' : 'center', 
+                                               'opacity': 1 }
                                    ), 
                             ], style={'textAlign': 'center', 
                                       'fontSize': 15,
-                                      'font-family': 'Helvetica Neue, Helvetica, Arial' 
+                                      'font-family': 'Helvetica Neue, \
+                                                      Helvetica, Arial' 
                                       }
                         ),
                          
@@ -116,11 +125,16 @@ html.Div([
                                 [ 
                                 html.P("Churn Rate"),
                                 html.H2(id = "Churn-Number-Details",
-                                        className = "info_text" 
+                                        className = "info_text",
+                                        style={'textAlign' : 'center', 
+                                               'opacity': 1,
+#                                               'color':'red'
+                                                }
                                    ), 
                             ], style={'textAlign': 'center', 
                                       'fontSize': 15, 
-                                      'font-family': 'Helvetica Neue, Helvetica, Arial'
+                                      'font-family': 'Helvetica Neue, \
+                                                      Helvetica, Arial'
                                       }
                         ),
                         html.Br(),
@@ -235,46 +249,7 @@ html.Div([
             style={'paddingBottom' : '5', "overflow": "auto"}),
  
         html.Br(),   
-        
-        html.Div([   
-
-#### Total Interactions Details 
-            html.Div([ 
-            dcc.Loading(
-            dcc.Graph(
-            id='Total-Interactions')
-            ),
-            ],style={'backgroundColor':colors['div_bg'], 
-                 'border':divBorder['border'],
-                 'border-radius':divBorder['border-radius'], 
-                 'display' : 'inline-block', 
-                 'boxSizing' : 'border-box',
-                 'float':'left',
-                 'width' : '60%',
-                 'box-shadow' : '2px 2px 2px lightgrey',
-                 'position': 'relative'
-                 }), 
-        
-#### Interactions Traffic Details
-            html.Div([ 
-            dcc.Loading(
-            dcc.Graph(
-            id='Interactions-Traffic-Details')
-            ),
-            ],style={'backgroundColor':colors['div_bg'], 
-                 'border':divBorder['border'],
-                 'border-radius':divBorder['border-radius'], 
-                 'display' : 'inline-block', 
-                 'boxSizing' : 'border-box',
-                 'float':'right',
-                 'width' : '38%',
-                 'box-shadow' : '2px 2px 2px lightgrey',
-                 'position': 'relative'
-                 }),
- 
-            ],  
-            style={'paddingBottom' : '5', "overflow": "auto"}),
-    
+        html.Br(), 
     ], 
     className = "container")
 
@@ -306,63 +281,7 @@ def db_data(start_date, end_date):
                             columns=list(datan[0].keys()))
     datann = df
     
-#########
-    ArticleSet = Articles.query.filter(Articles.status_id == 7).all()
-    
-    article_table = []
-    for Article in ArticleSet:
-        cont = [Article.id, Article.title, Article.content, Article.updated_at]
-        article_table.append(cont)
-            
-    article_table_df = pd.DataFrame(article_table, 
-                           columns=['id','title',
-                                    'content', 'updated_at'])
-    df1 = article_table_df.to_json()
-    
-    Interactions_df = Interactions.query.filter(Interactions.updated_at <= end,
-                                               Interactions.updated_at >= start).all()
-    interactions_table = []        
-    for intr in Interactions_df:
-        cont = [intr.id, intr.user_id, intr.article_id, 
-                intr.interaction_type_id,intr.updated_at]
-        interactions_table.append(cont)
-            
-    
-    interactions_table_df = pd.DataFrame(interactions_table, 
-                           columns=['id','user_id',
-                                    'article_id', 'interaction_type_id', 'updated_at'])
-    
-    return datann.to_json(), json.dumps(interactions_table, default = myconverter)
-
-############### news-service DB Loader 
-    
-#@app.callback(
-#        dash.dependencies.Output('Intermediate-Details','children'),
-#        [dash.dependencies.Input('my-date-picker-range', 'start_date'),
-#        dash.dependencies.Input('my-date-picker-range', 'end_date')])
-#    
-#def db_data(start_date, end_date):
-#    
-#    start = dt.strptime(start_date[:10], '%Y-%m-%d').strftime("%Y%m%d")
-#    
-#    end = dt.strptime(end_date[:10], '%Y-%m-%d').strftime("%Y%m%d")
-#    
-#    QUERY = """
-#    SELECT * FROM  `clane-8d862.analytics_183730768.events_*` 
-#    where REPLACE(_TABLE_SUFFIX, "_", "-")
-#          BETWEEN {0} AND {1}
-#          """.format('"%s"' % start, '"%s"' % end)
-#        
-#    query_job = client.query(QUERY)
-#    print("firebase data loaded")
-#    
-#    datan = list(query_job.result(timeout=100))
-#     
-#    df = pd.DataFrame(data=[list(x.values()) for x in datan], 
-#                            columns=list(datan[0].keys()))
-#    datann = df
-#    
-#    return datann.to_json()
+    return datann.to_json() 
 
 
 ############### Unique Users
@@ -400,7 +319,7 @@ def total_event_data(datann):
     
     return datann.shape[0]
 
-############### Total Number Count
+############### Churn Rate
 @app.callback(
         dash.dependencies.Output('Churn-Number-Details','children'),
         [dash.dependencies.Input('Intermediate-Details', 'children') ])
@@ -426,9 +345,9 @@ def churn_number_data(datann):
     app_remove = app_dmat_df[app_dmat_df['event_name'] == 'app_remove']
      
     churn_rate = ((app_remove.shape[0])/Enc_users)*100
-
-#    return '{0}%'.format((round(churn_rate,2)))
-    return round(churn_rate,2)
+    
+    return '{0}%'.format((round(churn_rate,2)))
+#    return round(churn_rate,2)
 
     
 ############### Country Details
@@ -466,7 +385,7 @@ def country_data(datann):
     
     return {'data': [data],
             'layout' : go.Layout(title=dict(
-                                            text="Countries",
+                                            text="<b>Countries</b>",
                                             ), 
                                             font=dict(size=10),
                                             height = 350,
@@ -508,7 +427,7 @@ def os_data(datann):
     
     return {'data': [data],
             'layout' : go.Layout(title=dict(
-                                            text="OS",
+                                            text="<b>OS</b>",
                                             ), 
                                             font=dict( size=10),
                                             height = 350,
@@ -552,7 +471,7 @@ def event_data(datann):
     
     return {'data': [data],
             'layout' : go.Layout(title=dict(
-                                            text="Events Usage",
+                                            text="<b>Events Usage</b>",
                                             ),
                                             font=dict(size=10),
                                             height = 350,
@@ -598,7 +517,7 @@ def brand_data(datann):
     
     return {'data': [data],
             'layout' : go.Layout(title=dict(
-                                           text="Mobile Brands",
+                                           text="<b>Mobile Brands</b>",
                                             ),
                                             height = 350,
                                             font=dict(size=10),
@@ -648,11 +567,11 @@ def traffic_data(datann):
     return {'data': [data],
             'layout' : go.Layout(
                                 title=dict(
-                                text="Daily Traffic",
+                                text="<b>Daily Traffic</b>",
                                         ),
                                 margin = dict(l=70, r=40, b=70,
                                                           t=50, pad=5),
-                                height = 330,
+                                height = 320,
                                 font=dict( size=10), 
                                 yaxis=dict(title = 'Counts',
                                            showgrid = False
@@ -664,89 +583,7 @@ def traffic_data(datann):
                                     ),
                               } 
 
-
-############### Daily Traffic    
-@app.callback(
-        dash.dependencies.Output('Interactions-Traffic-Details','figure'),
-        [dash.dependencies.Input('Intermediate-Details', 'children')])
-    
-def interactions_traffic_data(interactions_table):
-    interactions = pd.DataFrame(eval(str(interactions_table)), columns=['id','user_id',
-                                    'article_id', 'interaction_type_id', 'updated_at'])
-    
-    print(interactions)  
-     
-    interactions['updated_at'] =  pd.to_datetime(interactions['updated_at'][:10], 
-               format='%Y-%m-%d') 
-    
-    interactions['updated_at'] = interactions['updated_at'].dt.date
-    enc_dmat = interactions 
-    
-    Enc_event_date = enc_dmat.groupby('updated_at').size() 
-    event_date_df= pd.DataFrame(Enc_event_date) 
-    Index_event_date_df = event_date_df.reset_index()
-    Index_event_date_df.columns = ['updated_at', 'counts']
-    
-    data = plotly.graph_objs.Scatter(x=Index_event_date_df.updated_at, 
-                                     y=Index_event_date_df.counts)
-    
-    xmin, xmax = np.min(Index_event_date_df.updated_at.to_numpy()), \
-                        np.max(Index_event_date_df.updated_at.to_numpy())
-    
-    return {'data': [data],
-            'layout' : go.Layout(  
-                                title=dict(
-                                text="Daily Traffic",
-                                        ),
-                                margin = dict(l=70, r=40, b=70,
-                                                          t=50, pad=5),
-                                height = 330,
-                                font=dict( size=10), 
-                                yaxis=dict(title = 'Counts',
-                                           showgrid = False
-                                           ),
-                                xaxis=dict(automargin = True,  
-                                title = 'Date',  
-                                tickvals=[xmin, xmax]
-                                    ),
-                                    ),
-                              } 
-    
-############### Interactions Details
-@app.callback(
-        dash.dependencies.Output('Total-Interactions','figure'),
-        [dash.dependencies.Input('Intermediate-Details', 'children') ])
-    
-def total_interactions_data(interactions_table):
-#    interactions = pd.read_json(eval(str(interactions_table)))
-    interactions = pd.DataFrame(eval(str(interactions_table)), columns=['id','user_id',
-                                    'article_id', 'interaction_type_id', 'updated_at'])
-#    print(interactions) 
-    interactions_df = interactions.groupby('interaction_type_id')['user_id'].count() 
-    
-    intr_df = pd.DataFrame(interactions_df) 
-    Index_intr_df = intr_df.reset_index() 
-    
-    
-    data = plotly.graph_objs.Bar(
-            x=Index_intr_df.interaction_type_id,
-            y=Index_intr_df.user_id,
-            name='Interactions' 
-            )
-    
-    return {'data': [data],
-            'layout' : go.Layout(title=dict(
-                                            text="Interactions",
-                                            ), 
-                                            font=dict(size=10),
-                                            height = 350,
-                                            xaxis=dict(automargin = True, 
-                                                       tickangle=45),
-                                            yaxis=dict(title = 'Counts')
-                                            )}
-
-
-#
+   
 #if __name__ == '__main__':
 #    app.run_server(debug=True)
     

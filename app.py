@@ -15,6 +15,6 @@ log.setLevel(logging.ERROR)
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css'] 
 
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.LUMEN])
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.LUX])
 app.config.suppress_callback_exceptions = True
      
