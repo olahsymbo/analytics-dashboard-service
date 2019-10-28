@@ -4,6 +4,7 @@
 import dash_html_components as html 
 from pages import commonmodules 
 import pandas as pd
+import numpy as np
 from app import app
 from datetime import datetime as dt 
 import plotly
@@ -59,6 +60,90 @@ layout = html.Div(style={'backgroundColor': colors['background'],
         html.Div(id='Intermediate-Details2', style={'display': 'none'}),  
         ]),
           
+    html.Br(),
+    
+    html.Div([     
+            html.Div([
+#### unique liked articles
+             html.Br(),
+                        html.Div(
+                                [ 
+                                html.P("Rated Articles"),
+                                html.H2(id = "Liked-Article",
+                                        className = "info_text",
+                                        style={'textAlign' : 'center', 
+                                               'opacity': 1}
+                                   ), 
+                                ], style={'textAlign': 'center', 
+                                          'fontSize': 15,  
+                                          'font-family': 'Helvetica Neue, \
+                                                      Helvetica, Arial'
+                                        }
+                            ),  
+
+#### unique liked articles
+             html.Br(),
+                        html.Div(
+                                [ 
+                                html.P("Unique Users"),
+                                html.H2(id = "Raters",
+                                        className = "info_text",
+                                        style={'textAlign' : 'center', 
+                                               'opacity': 1}
+                                   ), 
+                                ], style={'textAlign': 'center', 
+                                          'fontSize': 15,  
+                                          'font-family': 'Helvetica Neue, \
+                                                      Helvetica, Arial'
+                                        }
+                            ),  
+            
+#### unique liked articles
+             html.Br(),
+                        html.Div(
+                                [ 
+                                html.P("Total Interactions"),
+                                html.H2(id = "Interactions-types",
+                                        className = "info_text",
+                                        style={'textAlign' : 'center', 
+                                               'opacity': 1}
+                                   ), 
+                                ], style={'textAlign': 'center', 
+                                          'fontSize': 15,  
+                                          'font-family': 'Helvetica Neue, \
+                                                      Helvetica, Arial'
+                                        }
+                            ),  
+                    ], style={
+                     'float':'left',
+                     'width':'25%',
+                     'backgroundColor':'ffffff',
+                     'border':divBorder['border'],
+                     'border-radius':divBorder['border-radius'],
+                     'display' : 'inline-block', 
+                     'boxSizing' : 'border-box', 
+                     'box-shadow' : '2px 2px 2px lightgrey',
+                     'position':'relative' 
+                    }),
+
+#### Traffic Details        
+                    html.Div([ 
+                    dcc.Loading(
+                    dcc.Graph(
+                    id='Interactions-Traffic')
+                    ),
+                    ],style={'backgroundColor':colors['div_bg'], 
+                         'border':divBorder['border'],
+                         'border-radius':divBorder['border-radius'],
+                         'display' : 'inline-block', 
+                         'boxSizing' : 'border-box',
+                         'float':'right', 
+                         'width' : '73%',
+                         'box-shadow' : '2px 2px 2px lightgrey',
+                         'position': 'relative'
+                         }),
+                    
+            ], style={'paddingBottom': '5', "overflow": "auto"}),
     html.Br(),
     html.Div([     
         
@@ -161,6 +246,54 @@ def db_interactions(start_date, end_date):
     
     return json.dumps(interactions_table, default = myconverter)
 
+
+############### Unique rated Articles
+@app.callback(
+        dash.dependencies.Output('Liked-Article','children'),
+        [dash.dependencies.Input('Intermediate-Details1', 'children')])
+    
+def rated_articles(interactions_table):
+    interactions = pd.DataFrame(eval(str(interactions_table)),
+                                columns=['id','user_id', 'article_id', 
+                                         'interaction_type_id', 'updated_at'])
+    
+    unique_articles = interactions['article_id'].nunique() 
+    
+    
+    return unique_articles
+
+
+############### Unique Raters
+@app.callback(
+        dash.dependencies.Output('Raters','children'),
+        [dash.dependencies.Input('Intermediate-Details1', 'children')])
+    
+def article_raters(interactions_table):
+    interactions = pd.DataFrame(eval(str(interactions_table)),
+                                columns=['id','user_id', 'article_id', 
+                                         'interaction_type_id', 'updated_at'])
+    
+    unique_users = interactions['user_id'].nunique() 
+    
+    
+    return unique_users
+
+
+############### Interactions types  
+@app.callback(
+        dash.dependencies.Output('Interactions-types','children'),
+        [dash.dependencies.Input('Intermediate-Details1', 'children')])
+    
+def interaction_types(interactions_table):
+    interactions = pd.DataFrame(eval(str(interactions_table)),
+                                columns=['id','user_id', 'article_id', 
+                                         'interaction_type_id', 'updated_at'])
+    
+    unique_users = interactions['interaction_type_id'].nunique() 
+    
+    
+    return unique_users
+
 ############### User_id Interactions
 @app.callback(
         dash.dependencies.Output('User-Interactions','figure'),
@@ -191,11 +324,11 @@ def user_interactions_data(interactions_table):
                                             ), 
                                             font=dict(size=10),
                                             height = 350,
-                                            margin = dict(l=200, r=50, b=50,
+                                            margin = dict(l=180, r=50, b=50,
                                                           t=100, pad=5), 
                                             xaxis=dict(automargin = True, 
                                                        tickangle=45),
-                                            yaxis=dict(title = 'Counts')
+#                                            yaxis=dict(title = 'Counts')
                                             )}
 
 
@@ -280,3 +413,52 @@ def articles_interactions_data(interactions_table, article_table):
 				'textAlign': 'left'})
 			])
                                          
+
+############### Daily Traffic    
+@app.callback(
+        dash.dependencies.Output('Interactions-Traffic','figure'), 
+        [dash.dependencies.Input('Intermediate-Details1', 'children')])
+    
+def interaction_traffic(interactions_table):
+    
+    app_dmat_df = pd.DataFrame(eval(str(interactions_table)), 
+                                            columns=['id','user_id',
+                                    'article_id', 'interaction_type_id', 
+                                                            'updated_at'])
+    
+    app_dmat_df['updated_at'] =  pd.to_datetime(app_dmat_df['updated_at'], 
+               format='%Y-%m-%d')
+    
+    app_dmat_df['updated_at'] = app_dmat_df['updated_at'].dt.date
+    enc_dmat = app_dmat_df
+       
+    
+    Enc_event_date = enc_dmat.groupby('updated_at').size() 
+    event_date_df= pd.DataFrame(Enc_event_date) 
+    Index_event_date_df = event_date_df.reset_index()
+    Index_event_date_df.columns = ['updated_at', 'counts']
+    
+    data = plotly.graph_objs.Scatter(x=Index_event_date_df.updated_at, 
+                                     y=Index_event_date_df.counts)
+    
+    xmin, xmax = np.min(Index_event_date_df.updated_at.to_numpy()), \
+                        np.max(Index_event_date_df.updated_at.to_numpy())
+    
+    return {'data': [data],
+            'layout' : go.Layout(
+                                title=dict(
+                                text="<b>Daily Traffic</b>",
+                                        ),
+                                margin = dict(l=70, r=40, b=70,
+                                                          t=50, pad=5),
+                                height = 300,
+                                font=dict( size=10), 
+                                yaxis=dict(title = 'Counts',
+                                           showgrid = False
+                                           ),
+                                xaxis=dict(automargin = True,  
+                                title = 'Date',  
+                                tickvals=[xmin, xmax]
+                                    ),
+                                    ),
+                              } 

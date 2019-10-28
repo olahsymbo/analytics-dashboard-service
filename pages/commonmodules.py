@@ -51,9 +51,9 @@ def get_menu():
     
     menu = html.Div([ 
         
-        dcc.Link(' Firebase   ', href='/visual_dash', className="p-2 text-dark"),
+        dcc.Link('Firebase   ', href='/visual_dash', className="p-2 text-dark"),
         dcc.Link('News   ', href='/news', className="p-2 text-dark"),
 #        dcc.Link('Interactions   ', href='/visual_interactions', className="p-2 text-dark"), 
 
-    ], className="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm")
+    ], className="d-flex flex-column flex-md-row align-items-center p-1 px-md-4 mb-3 bg-white border-bottom ")
     return menu    
