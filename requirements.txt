@@ -1,0 +1,7 @@
+dash 
+dash_bootstrap_components
+google-cloud 
+google-cloud-vision
+pandas
+flask
+Flask-SQLAlchemy

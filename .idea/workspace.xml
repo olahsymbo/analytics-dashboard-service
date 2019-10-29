@@ -1,16 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="76a583b1-21fe-46cf-b8c6-a124f0553c82" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/pages/news.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dash_vis.py" beforeDir="false" afterPath="$PROJECT_DIR$/dash_vis.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.py" beforeDir="false" afterPath="$PROJECT_DIR$/index.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pages/commonmodules.py" beforeDir="false" afterPath="$PROJECT_DIR$/pages/commonmodules.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pages/home.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pages/visual_dash.py" beforeDir="false" afterPath="$PROJECT_DIR$/pages/visual_dash.py" afterDir="false" />
-    </list>
+    <list default="true" id="76a583b1-21fe-46cf-b8c6-a124f0553c82" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -18,7 +9,17 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <leaf />
+    <leaf>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/index.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="221">
+              <caret line="36" column="2" selection-start-line="36" selection-start-column="2" selection-end-line="36" selection-end-column="2" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -49,23 +50,18 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
             <path>
-              <item name="clane-services-dashboard" type="b2602c69:ProjectViewProjectNode" />
-              <item name="clane-services-dashboard" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="clane-services-dashboard" type="b2602c69:ProjectViewProjectNode" />
-              <item name="clane-services-dashboard" type="462c0819:PsiDirectoryNode" />
-              <item name="pages" type="462c0819:PsiDirectoryNode" />
+              <item name="clane-service-dashboard" type="b2602c69:ProjectViewProjectNode" />
+              <item name="clane-service-dashboard" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -157,12 +153,12 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="7959000" />
+    <option name="totallyTimeSpent" value="8053000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="900" extended-state="0" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.26752505" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.27110156" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -175,8 +171,8 @@
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="8" weight="0.32891566" />
       <window_info anchor="bottom" id="Database Changes" order="9" />
-      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.50143063" side_tool="true" visible="true" weight="0.19036144" />
-      <window_info anchor="bottom" id="Terminal" order="11" sideWeight="0.4985694" visible="true" weight="0.19036144" />
+      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.50429183" side_tool="true" visible="true" weight="0.27951807" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="11" sideWeight="0.49570817" visible="true" weight="0.27951807" />
       <window_info anchor="bottom" id="Python Console" order="12" sideWeight="0.49928468" weight="0.32891566" />
       <window_info anchor="bottom" id="Messages" order="13" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
