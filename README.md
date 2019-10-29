@@ -17,7 +17,7 @@ pip install virtualenv
 python venv -m <name>
 ```
 
-### Goto the directory of the virtual environment and activate it 
+   goto the directory of the virtual environment and activate it 
  
 ```
 cd <name>/bin
@@ -26,7 +26,7 @@ sourve activate
 
 3. Install Modules
 
-   The following libraries/modules in the requirements file should be installed. Run:
+   the following libraries/modules in the requirements file should be installed. Run:
 
 ```
 pip install -r requirements.txt
