@@ -42,7 +42,7 @@ def display_page(pathname):
     if pathname == '/visual_dash':
          return visual_dash.layout    
     elif pathname == '/news':
-         return news.layout 
+         return news.layout
 #    elif pathname == '/':
 #         return home.layout
     else:

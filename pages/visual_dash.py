@@ -19,8 +19,6 @@ import plotly
 import plotly.graph_objs as go  
 import dash_bootstrap_components as dbc 
 from app import app
-from TableModels.Artc import Articles 
-from TableModels.Intr import Interactions 
 from dashboard_firebase import *
 from pages import commonmodules
 import logging

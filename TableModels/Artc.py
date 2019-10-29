@@ -53,3 +53,13 @@ class Categories(db.Model):
     id = db.Column('id', db.Integer, primary_key=True)
 ##    article_id = db.Column(db.Integer, db.ForeignKey('articles.id'))
     name = db.Column('name', db.String())
+
+class Interactions(db.Model):
+    __tablename__ = 'interactions'
+
+    id = db.Column('id', db.Integer, primary_key=True)
+    user_id = db.Column('user_id', db.String())
+    article_id = db.Column('article_id', db.Integer)
+    interaction_type_id = db.Column('interaction_type_id', db.Integer)
+    created_at = db.Column('created_at', db.DateTime)
+    updated_at = db.Column('updated_at', db.DateTime)

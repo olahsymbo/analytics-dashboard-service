@@ -12,8 +12,7 @@ import plotly.graph_objs as go
 import dash
 import dash_table
 import dash_core_components as dcc
-from TableModels.Artc import Articles 
-from TableModels.Intr import Interactions 
+from TableModels.Artc import Articles, Interactions
 import json
  
 colors = {
@@ -299,7 +298,7 @@ def interaction_types(interactions_table):
         dash.dependencies.Output('User-Interactions','figure'),
         [dash.dependencies.Input('Intermediate-Details1', 'children') ])
     
-def user_interactions_data(interactions_table): 
+def user_interactions_data(interactions_table):
     interactions = pd.DataFrame(eval(str(interactions_table)), 
                                             columns=['id','user_id',
                                     'article_id', 'interaction_type_id', 
@@ -377,7 +376,7 @@ def total_interactions_data(interactions_table):
         [dash.dependencies.Input('Intermediate-Details1', 'children'),
         dash.dependencies.Input('Intermediate-Details2', 'children')])
     
-def articles_interactions_data(interactions_table, article_table): 
+def articles_interactions_data(interactions_table, article_table):
     
     interactions = pd.DataFrame(eval(str(interactions_table)), 
                                             columns=['id','user_id',
@@ -403,16 +402,15 @@ def articles_interactions_data(interactions_table, article_table):
     article_df = article_df.join(user_df['user_id'])
     
     return html.Div([
-			dash_table.DataTable(
-				id='table',
-				columns=[{"name": i, "id": i} for i in article_df.columns],
-				data=article_df.to_dict("rows"),
-				style_cell={'width': 'auto',  
-				'height': 'auto', 
-                'fontSize': 12,
-				'textAlign': 'left'})
-			])
-                                         
+                    dash_table.DataTable(
+                    id='table',
+                    columns=[{"name": i, "id": i} for i in article_df.columns],
+                    data=article_df.to_dict("rows"),
+                    style_cell={'width': 'auto',
+                    'height': 'auto',
+                    'fontSize': 12,
+                    'textAlign': 'left'})
+                    ])
 
 ############### Daily Traffic    
 @app.callback(
@@ -422,9 +420,8 @@ def articles_interactions_data(interactions_table, article_table):
 def interaction_traffic(interactions_table):
     
     app_dmat_df = pd.DataFrame(eval(str(interactions_table)), 
-                                            columns=['id','user_id',
-                                    'article_id', 'interaction_type_id', 
-                                                            'updated_at'])
+                                columns=['id','user_id', 'article_id',
+                                         'interaction_type_id', 'updated_at'])
     
     app_dmat_df['updated_at'] =  pd.to_datetime(app_dmat_df['updated_at'], 
                format='%Y-%m-%d')
