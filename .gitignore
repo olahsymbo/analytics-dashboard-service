@@ -1,0 +1,6 @@
+.idea/
+.DS_Store
+__pycache__/
+config/google-services.json
+config/bigquery_python.txt
+config/clane-8d862-fa96872fe9cb.json 
