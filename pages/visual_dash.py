@@ -6,32 +6,24 @@ import inspect
 app_path = inspect.getfile(inspect.currentframe())
 dash_dir = os.path.realpath(os.path.dirname(app_path))
 
-from datetime import datetime as dt 
+from datetime import datetime as dt, timedelta
 import base64
 import pandas as pd
-import numpy as np
-import json
-import dash
-import dash_table
+import numpy as np 
+import dash 
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly
-import plotly.graph_objs as go  
-import dash_bootstrap_components as dbc 
+import plotly.graph_objs as go   
 from app import app
 from dashboard_firebase import *
 from pages import commonmodules
 import logging
 log = logging.getLogger('werkzeug')
-log.setLevel(logging.ERROR)
-
-#external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+log.setLevel(logging.ERROR) 
 
 client = db_config(dash_dir)
-
-#app = dash.Dash(__name__, external_stylesheets=[dbc.themes.LUMEN])
-#app.config.suppress_callback_exceptions = True
-
+ 
 colors = {
             'background': '#f5f6f7',             #'#9KDBFF'
             'div_bg': '#9KDBFF',    ##e2ecfb
@@ -52,51 +44,52 @@ encoded_image = base64.b64encode(open(os.path.join(dash_dir, "img/clane.png"), '
 layout = html.Div(style={'backgroundColor': colors['background'], 
                              "margin": "auto"}, children=[
         
-    html.Div([
-
-            commonmodules.get_header(),
-            commonmodules.get_menu(),
-            ],
-            style={'backgroundColor':'#fcfcfc'},            
-            ), 
-    html.Br(),
-    
-    html.Div([
-            dcc.DatePickerRange(
-                id='my-date-picker-range',
-                min_date_allowed=dt(2018, 10, 31),
-                max_date_allowed=dt(2021, 12, 31),
-                initial_visible_month=dt(2019, 8, 1),
-                start_date=dt(2019, 8, 28),
-                end_date=dt(2019, 8, 30)),
-    html.Div(id='output-container-date-picker-range'),
-    dcc.Loading(
-    html.Div(id='Intermediate-Details', style={'display': 'none'}), 
-                                                        type="circle"),   
-    html.Div(id='Intermediate-Details1', style={'display': 'none'}),   
-    html.Div(id='Intermediate-Details2', style={'display': 'none'}),  
-    ]),
-     
-    html.Br(),
+            html.Div([
+        
+                    commonmodules.get_header(),
+                    commonmodules.get_menu(),
+                    ],
+                    style={'backgroundColor':'#fcfcfc'},            
+                    ), 
+            html.Br(),
+            
+            html.Div([
+                    dcc.DatePickerRange(
+                        id='my-date-picker-range',
+                        min_date_allowed=dt(2018, 10, 31),
+                        max_date_allowed=dt(2021, 12, 31),
+                        initial_visible_month=dt(2019, 8, 1),
+                        start_date=dt.today() - timedelta(days=8),
+                        end_date=dt.today() - timedelta(days=1)),
+            html.Div(id='output-container-date-picker-range'),
+            dcc.Loading(
+            html.Div(id='Intermediate-Details', style={'display': 'none'}), type="circle"),   
+            html.Div(id='Intermediate-Details1', style={'display': 'none'}),   
+            html.Div(id='Intermediate-Details2', style={'display': 'none'}),  
+            ]),
+             
+            html.Br(),
 
 ######################################################################  
 
-html.Div([     
-            html.Div([ 
-#### User/Event Details  
+            html.Div([    
+                    
+                    html.Div([ 
+                            
+                        #### User/Event Details  
                         html.Br(),
+                        
                         html.Div(
                                 [ 
                                 html.P("App Users"),
                                 html.H2(id = "Unique-Users",
                                         className = "info_text",
                                         style={'textAlign' : 'center', 
-                                               'opacity': 1}
+                                               'opacity': 5}
                                    ), 
                                 ], style={'textAlign': 'center', 
                                           'fontSize': 15,  
-                                          'font-family': 'Helvetica Neue, \
-                                                      Helvetica, Arial'
+                                          'font-family': 'Helvetica Neue, Helvetica, Arial'
                                         }
                             ),
                                         
@@ -108,14 +101,14 @@ html.Div([
                                 html.H2(id = "Total-Event-Details",
                                         className = "info_text" ,
                                         style={'textAlign' : 'center', 
-                                               'opacity': 1 }
-                                   ), 
-                            ], style={'textAlign': 'center',  
+                                               'opacity': 5 
+                                               }
+                                        ), 
+                                ], style={'textAlign': 'center',  
                                       'fontSize': 15,
-                                      'font-family': 'Helvetica Neue, \
-                                                      Helvetica, Arial' 
+                                      'font-family': 'Helvetica Neue, Helvetica, Arial' 
                                       }
-                        ),
+                                ),
                          
                         html.Br(),
                         
@@ -125,55 +118,94 @@ html.Div([
                                 html.H2(id = "Churn-Number-Details",
                                         className = "info_text",
                                         style={'textAlign' : 'center', 
-                                               'opacity': 1,
-#                                               'color':'red'
-                                                }
-                                   ), 
-                            ], style={'textAlign': 'center', 
+                                               'opacity': 5,
+                                              }
+                                        ), 
+                                ], style={'textAlign': 'center', 
                                       'fontSize': 15, 
-                                      'font-family': 'Helvetica Neue, \
-                                                      Helvetica, Arial'
+                                      'font-family': 'Helvetica Neue, Helvetica, Arial'
                                       }
-                        ),
+                                ),
                         html.Br(),
-                         ],style={'backgroundColor':'ffffff',
-                         'border':divBorder['border'],
-                         'border-radius':divBorder['border-radius'],
-                         'display' : 'inline-block', 
-                         'boxSizing' : 'border-box',
-                         'float':'left',
-                         'width' : '25%',
-                         'box-shadow' : '2px 2px 2px lightgrey',
-                         'position':'relative'
-                         }),
+                             ],style={'backgroundColor':'ffffff',
+                             'border':divBorder['border'],
+                             'border-radius':divBorder['border-radius'],
+                             'display' : 'inline-block', 
+                             'boxSizing' : 'border-box',
+                             'float':'left',
+                             'width' : '25%',
+                             'box-shadow' : '2px 2px 2px lightgrey',
+                             'position':'relative'
+                             }),
 
-#### Traffic Details        
+                    #### Traffic Details        
                     html.Div([ 
                     dcc.Loading(
-                    dcc.Graph(
-                    id='Traffic-Details')
-                    ),
-                    ],style={'backgroundColor':colors['div_bg'], 
-                         'border':divBorder['border'],
-                         'border-radius':divBorder['border-radius'],
-                         'display' : 'inline-block', 
-                         'boxSizing' : 'border-box',
-                         'float':'right', 
-                         'width' : '73%',
-                         'box-shadow' : '2px 2px 2px lightgrey',
-                         'position': 'relative'
-                         }),
+                    dcc.Graph(id='Traffic-Details')
+                                ),
+                            ],style={'backgroundColor':colors['div_bg'], 
+                             'border':divBorder['border'],
+                             'border-radius':divBorder['border-radius'],
+                             'display' : 'inline-block', 
+                             'boxSizing' : 'border-box',
+                             'float':'right', 
+                             'width' : '73%',
+                             'box-shadow' : '2px 2px 2px lightgrey',
+                             'position': 'relative'
+                             }
+                            ),
                     
-            ], style={'paddingBottom': '5', "overflow": "auto"}),
+                            ], style={'paddingBottom': '5', "overflow": "auto"}
+                        ),
     
-    html.Br(), 
+                    html.Br(), 
     
-    html.Div([  
-#### Country Details 
+                    html.Div([  
+                    #### Country Details 
+                    html.Div([ 
+                    dcc.Loading(
+                    dcc.Graph(id='Country-Details')
+                            ),
+                            ],style={'backgroundColor':colors['div_bg'], 
+                             'border':divBorder['border'],
+                             'border-radius':divBorder['border-radius'], 
+                             'display' : 'inline-block', 
+                             'boxSizing' : 'border-box',
+                             'float':'left',
+                             'width' : '60%',
+                             'box-shadow': '2px 2px 2px lightgrey',
+                             'position': 'relative'
+                             }),  
+
+                    #### OS Details 
+                    html.Div([ 
+                    dcc.Loading(
+                    dcc.Graph(id='OS-Details')
+                                ),
+                            ],style={'backgroundColor':colors['div_bg'], 
+                                 'border':divBorder['border'],
+                                 'border-radius':divBorder['border-radius'], 
+                                 'display' : 'inline-block', 
+                                 'boxSizing' : 'border-box',
+                                 'float':'right',
+                                 'width' : '38%',
+                                 'box-shadow' : '2px 2px 2px lightgrey',
+                                 'position': 'relative'
+                                 }
+                            ), 
+                                ],
+                                style={'paddingBottom' : '5', "overflow": "auto"}
+                            ),
+
+                    html.Br(),  
+        
+                    html.Div([   
+
+                    #### Event Details 
                     html.Div([ 
                     dcc.Loading(
                     dcc.Graph(
-                    id='Country-Details')
+                    id='Event-Details')
                     ),
                     ],style={'backgroundColor':colors['div_bg'], 
                          'border':divBorder['border'],
@@ -182,74 +214,35 @@ html.Div([
                          'boxSizing' : 'border-box',
                          'float':'left',
                          'width' : '60%',
-                         'box-shadow': '2px 2px 2px lightgrey',
-                         'position': 'relative'
-                         }),  
-
-#### OS Details 
-                    html.Div([ 
-                    dcc.Loading(
-                    dcc.Graph(
-                    id='OS-Details')
-                    ),
-                    ],style={'backgroundColor':colors['div_bg'], 
-                         'border':divBorder['border'],
-                         'border-radius':divBorder['border-radius'], 
-                         'display' : 'inline-block', 
-                         'boxSizing' : 'border-box',
-                         'float':'right',
-                         'width' : '38%',
                          'box-shadow' : '2px 2px 2px lightgrey',
                          'position': 'relative'
                          }), 
-        ],
-        style={'paddingBottom' : '5', "overflow": "auto"}),
-
-        html.Br(),  
         
-    html.Div([   
-
-#### Event Details 
-            html.Div([ 
-            dcc.Loading(
-            dcc.Graph(
-            id='Event-Details')
-            ),
-            ],style={'backgroundColor':colors['div_bg'], 
-                 'border':divBorder['border'],
-                 'border-radius':divBorder['border-radius'], 
-                 'display' : 'inline-block', 
-                 'boxSizing' : 'border-box',
-                 'float':'left',
-                 'width' : '60%',
-                 'box-shadow' : '2px 2px 2px lightgrey',
-                 'position': 'relative'
-                 }), 
-        
-#### Mobile Brand
-            html.Div([ 
-            dcc.Loading(
-            dcc.Graph(
-            id='Brand-Details')
-            ),
-            ],style={'backgroundColor':colors['div_bg'], 
-                 'border':divBorder['border'],
-                 'border-radius':divBorder['border-radius'], 
-                 'display' : 'inline-block', 
-                 'boxSizing' : 'border-box',
-                 'float':'right',
-                 'width' : '38%',
-                 'box-shadow' : '2px 2px 2px lightgrey',
-                 'position': 'relative'
-                 }),
- 
-            ],  
-            style={'paddingBottom' : '5', "overflow": "auto"}),
- 
-        html.Br(),   
-        html.Br(), 
-    ], 
-    className = "container")
+                    #### Mobile Brand
+                    html.Div([ 
+                    dcc.Loading(
+                    dcc.Graph(id='Brand-Details')
+                            ),
+                            ],style={'backgroundColor':colors['div_bg'], 
+                             'border':divBorder['border'],
+                             'border-radius':divBorder['border-radius'], 
+                             'display' : 'inline-block', 
+                             'boxSizing' : 'border-box',
+                             'float':'right',
+                             'width' : '38%',
+                             'box-shadow' : '2px 2px 2px lightgrey',
+                             'position': 'relative'
+                             }),
+         
+                            ],  
+                            style={'paddingBottom' : '5', "overflow": "auto"}
+                            ),
+         
+                    html.Br(),   
+                    html.Br(), 
+                                                        ], 
+                                className = "container"
+                )
 
 
 ############### DB Loader 
@@ -275,8 +268,7 @@ def db_data(start_date, end_date):
     
     datan = list(query_job.result(timeout=100))
      
-    df = pd.DataFrame(data=[list(x.values()) for x in datan], 
-                            columns=list(datan[0].keys()))
+    df = pd.DataFrame(data=[list(x.values()) for x in datan], columns=list(datan[0].keys()))
     datann = df
     
     return datann.to_json() 
@@ -301,8 +293,7 @@ def user_data(datann):
     
     app_dmat_df = pd.DataFrame(app_dmat, columns = colums)  
     enc_dmat = app_dmat_df
-       
-    
+        
     Enc_users = enc_dmat['user_id'].nunique()
     
     return Enc_users 
@@ -344,10 +335,8 @@ def churn_number_data(datann):
      
     churn_rate = ((app_remove.shape[0])/Enc_users)*100
     
-    return '{0}%'.format((round(churn_rate,2)))
-#    return round(churn_rate,2)
-
-    
+    return '{0}%'.format((round(churn_rate,2))) 
+ 
 ############### Country Details
 @app.callback(
         dash.dependencies.Output('Country-Details','figure'),
@@ -370,8 +359,7 @@ def country_data(datann):
     enc_dmat = app_dmat_df
        
     
-    Enc_country = enc_dmat.groupby('geo_country')['user_id'].nunique() \
-                                                .sort_values(ascending=False) 
+    Enc_country = enc_dmat.groupby('geo_country')['user_id'].nunique().sort_values(ascending=False) 
     country_df = pd.DataFrame(Enc_country) 
     Index_country_df = country_df.reset_index()
     
@@ -390,7 +378,8 @@ def country_data(datann):
                                             xaxis=dict(automargin = True, 
                                                        tickangle=45),
                                             yaxis=dict(title = 'Counts')
-                                            )}
+                                            )
+            }
     
 ################ OS Details
 @app.callback(
@@ -418,10 +407,7 @@ def os_data(datann):
     OS_df = pd.DataFrame(Enc_OS) 
     Index_OS_df = OS_df.reset_index() 
     
-    data = plotly.graph_objs.Pie(labels=Index_OS_df.platform, 
-                                 values=Index_OS_df.user_id, 
-            name='OS' 
-            )
+    data = plotly.graph_objs.Pie(labels=Index_OS_df.platform, values=Index_OS_df.user_id, name='OS')
     
     return {'data': [data],
             'layout' : go.Layout(title=dict(
@@ -431,7 +417,8 @@ def os_data(datann):
                                             height = 350,
                                             xaxis=dict(automargin = True),
                                             yaxis=dict(title = 'Counts')
-                                            )}
+                                            )
+            }
     
 ############ Event details    
 @app.callback(
@@ -455,8 +442,7 @@ def event_data(datann):
     enc_dmat = app_dmat_df
        
     
-    Enc_events = enc_dmat.groupby('event_name')['user_id'].count() \
-                                                .sort_values(ascending=True)
+    Enc_events = enc_dmat.groupby('event_name')['user_id'].count().sort_values(ascending=True)
     Event_df = pd.DataFrame(Enc_events) 
     Index_Event_df = Event_df.reset_index()
     
@@ -479,7 +465,8 @@ def event_data(datann):
                                                         title = 'Counts'),
                                             yaxis=dict(
                                             tickfont=dict(size=10))
-                                            )}
+                                            )
+            }
 
 
 ############ Brand Details
@@ -508,10 +495,8 @@ def brand_data(datann):
     brand_df = pd.DataFrame(Enc_brand) 
     Index_brand_df = brand_df.reset_index() 
     
-    data = plotly.graph_objs.Pie(labels=Index_brand_df.brand_name, 
-                                 values=Index_brand_df.user_id, 
-            name='Phone Brand' 
-            )
+    data = plotly.graph_objs.Pie(labels=Index_brand_df.brand_name, values=Index_brand_df.user_id, 
+                                                                             name='Phone Brand')
     
     return {'data': [data],
             'layout' : go.Layout(title=dict(
@@ -522,7 +507,8 @@ def brand_data(datann):
                                             xaxis=dict(automargin = True, 
                                                        tickangle=45),
                                             yaxis=dict(title = 'Counts')
-                                            )}
+                                            )
+            }
 
 
 ############### Daily Traffic    
@@ -556,8 +542,7 @@ def traffic_data(datann):
     Index_event_date_df = event_date_df.reset_index()
     Index_event_date_df.columns = ['event_date', 'counts']
     
-    data = plotly.graph_objs.Scatter(x=Index_event_date_df.event_date, 
-                                     y=Index_event_date_df.counts)
+    data = plotly.graph_objs.Scatter(x=Index_event_date_df.event_date, y=Index_event_date_df.counts)
     
     xmin, xmax = np.min(Index_event_date_df.event_date.to_numpy()), \
                         np.max(Index_event_date_df.event_date.to_numpy())
@@ -579,9 +564,4 @@ def traffic_data(datann):
                                 tickvals=[xmin, xmax]
                                     ),
                                     ),
-                              } 
-
-   
-#if __name__ == '__main__':
-#    app.run_server(debug=True)
-    
+            }   

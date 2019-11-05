@@ -6,7 +6,7 @@ from pages import commonmodules
 import pandas as pd
 import numpy as np
 from app import app
-from datetime import datetime as dt 
+from datetime import datetime as dt, timedelta
 import plotly
 import plotly.graph_objs as go  
 import dash
@@ -24,8 +24,7 @@ colors = {
 divBorder = {
              'border': '1px outset white',
              'border-radius': '5px'
-            }
-
+            } 
 
 def myconverter(o):
  if isinstance(o, dt):
@@ -34,98 +33,95 @@ def myconverter(o):
 layout = html.Div(style={'backgroundColor': colors['background'], 
                              "margin": "auto"}, children=[
     
-    html.Div([
-    
-                commonmodules.get_header(),
-                commonmodules.get_menu(),
-                ],
-                style={'backgroundColor':'#fcfcfc'},            
-                ), 
-        html.Br(),
-        
-        html.Div([
-                dcc.DatePickerRange(
-                    id='my-date-picker-range',
-                    min_date_allowed=dt(2018, 10, 31),
-                    max_date_allowed=dt(2021, 12, 31),
-                    initial_visible_month=dt(2019, 8, 1),
-                    start_date=dt(2019, 8, 28),
-                    end_date=dt(2019, 8, 30)),
-        html.Div(id='output-container-date-picker-range'),
-        dcc.Loading(
-        html.Div(id='Intermediate-Details', style={'display': 'none'}), 
-                                                            type="circle"),   
-        html.Div(id='Intermediate-Details1', style={'display': 'none'}),   
-        html.Div(id='Intermediate-Details2', style={'display': 'none'}),  
-        ]),
-          
-    html.Br(),
-    
-    html.Div([     
             html.Div([
-#### unique liked articles
-             html.Br(),
-                        html.Div(
-                                [ 
-                                html.P("Rated Articles"),
-                                html.H2(id = "Liked-Article",
-                                        className = "info_text",
-                                        style={'textAlign' : 'center', 
-                                               'opacity': 1}
-                                   ), 
-                                ], style={'textAlign': 'center', 
-                                          'fontSize': 15,  
-                                          'font-family': 'Helvetica Neue, \
-                                                      Helvetica, Arial'
-                                        }
-                            ),  
-
-#### unique liked articles
-             html.Br(),
-                        html.Div(
-                                [ 
-                                html.P("Unique Users"),
-                                html.H2(id = "Raters",
-                                        className = "info_text",
-                                        style={'textAlign' : 'center', 
-                                               'opacity': 1}
-                                   ), 
-                                ], style={'textAlign': 'center', 
-                                          'fontSize': 15,  
-                                          'font-family': 'Helvetica Neue, \
-                                                      Helvetica, Arial'
-                                        }
-                            ),  
             
-#### unique liked articles
-             html.Br(),
-                        html.Div(
-                                [ 
-                                html.P("Total Interactions"),
-                                html.H2(id = "Interactions-types",
-                                        className = "info_text",
-                                        style={'textAlign' : 'center', 
-                                               'opacity': 1}
-                                   ), 
-                                ], style={'textAlign': 'center', 
-                                          'fontSize': 15,  
-                                          'font-family': 'Helvetica Neue, \
-                                                      Helvetica, Arial'
-                                        }
-                            ),  
-                    ], style={
-                     'float':'left',
-                     'width':'25%',
-                     'backgroundColor':'ffffff',
-                     'border':divBorder['border'],
-                     'border-radius':divBorder['border-radius'],
-                     'display' : 'inline-block', 
-                     'boxSizing' : 'border-box', 
-                     'box-shadow' : '2px 2px 2px lightgrey',
-                     'position':'relative' 
-                    }),
+                        commonmodules.get_header(),
+                        commonmodules.get_menu(),
+                        ],
+                        style={'backgroundColor':'#fcfcfc'},            
+                        ), 
+                html.Br(),
+        
+            html.Div([
+                    dcc.DatePickerRange(
+                        id='my-date-picker-range',
+                        min_date_allowed=dt(2018, 10, 31),
+                        max_date_allowed=dt(2021, 12, 31),
+                        initial_visible_month=dt(2019, 8, 1),
+                        start_date=dt.today() - timedelta(days=8),
+                        end_date=dt.today() - timedelta(days=1)),
+            html.Div(id='output-container-date-picker-range'),
+            dcc.Loading(
+            html.Div(id='Intermediate-Details', style={'display': 'none'}), 
+                                                                type="circle"),   
+#            html.Div(id='Intermediate-Details1', style={'display': 'none'}),   
+#            html.Div(id='Intermediate-Details2', style={'display': 'none'}),  
+            html.Div(dcc.Store(id='Intermediate-Details1')),   
+            html.Div(dcc.Store(id='Intermediate-Details2')),  
+            ]),
+          
+            html.Br(),
+    
+            html.Div([     
+                    html.Div([
+                     #### unique liked articles
+                     html.Br(),
+                                html.Div(
+                                        [ 
+                                        html.P("Rated Articles"),
+                                        html.H2(id = "Liked-Article",
+                                                className = "info_text",
+                                                style={'textAlign' : 'center', 'opacity': 5}
+                                           ), 
+                                        ], style={'textAlign': 'center', 
+                                                  'fontSize': 15,  
+                                                  'font-family': 'Helvetica Neue, Helvetica, Arial'
+                                                }
+                                    ),  
 
-#### Traffic Details        
+                     #### unique liked articles
+                     html.Br(),
+                                html.Div(
+                                        [ 
+                                        html.P("Unique Users"),
+                                        html.H2(id = "Raters",
+                                                className = "info_text",
+                                                style={'textAlign' : 'center', 'opacity': 5}
+                                           ), 
+                                        ], style={'textAlign': 'center', 
+                                                  'fontSize': 15,  
+                                                  'font-family': 'Helvetica Neue, Helvetica, Arial',
+                                                }
+                                    ),  
+            
+                     #### unique liked articles
+                     html.Br(),
+                                html.Div(
+                                        [ 
+                                        html.P("Total Interactions"),
+                                        html.H2(id = "Interactions-types",
+                                                className = "info_text",
+                                                style={'textAlign' : 'center', 'opacity': 5}
+                                           ), 
+                                        ], style={'textAlign': 'center', 
+                                                  'fontSize': 15,  
+                                                  'font-family': 'Helvetica Neue, Helvetica, Arial'
+                                                }
+                                    ),  
+                                ], style={
+                                 'float':'left',
+                                 'width':'25%',
+                                 'backgroundColor':'ffffff',
+                                 'border':divBorder['border'],
+                                 'border-radius':divBorder['border-radius'],
+                                 'display' : 'inline-block', 
+                                 'boxSizing' : 'border-box', 
+                                 'box-shadow' : '2px 2px 2px lightgrey',
+                                 'position':'relative' 
+                                }
+                    ),
+
+                    #### Traffic Details        
                     html.Div([ 
                     dcc.Loading(
                     dcc.Graph(
@@ -142,57 +138,61 @@ layout = html.Div(style={'backgroundColor': colors['background'],
                          'position': 'relative'
                          }),
                     
-            ], style={'paddingBottom': '5', "overflow": "auto"}),
-    html.Br(),
-    html.Div([     
-        
-        html.Div([   
-    
-    #### User-Interactions Details 
-                html.Div([ 
-                dcc.Loading(
-                dcc.Graph(
-                id='User-Interactions')
-                ),
-                ],style={'backgroundColor':colors['div_bg'], 
-                     'border':divBorder['border'],
-                     'border-radius':divBorder['border-radius'], 
-                     'display' : 'inline-block', 
-                     'boxSizing' : 'border-box',
-                     'float':'left',
-                     'width' : '60%',
-                     'box-shadow' : '2px 2px 2px lightgrey', 
-                     'position': 'relative'
-                     }), 
-            
-    #### Total Interactions Details
-                html.Div([ 
-                dcc.Loading(
-                dcc.Graph(
-                id='Total-Interactions')
-                ),
-                ],style={'backgroundColor':colors['div_bg'], 
-                     'border':divBorder['border'],
-                     'border-radius':divBorder['border-radius'], 
-                     'display' : 'inline-block', 
-                     'boxSizing' : 'border-box',
-                     'float':'right',
-                     'width' : '38%',
-                     'box-shadow' : '2px 2px 2px lightgrey',
-                     'position': 'relative'
-                     }),
-     
-                ],  
-                style={'paddingBottom' : '5', "overflow": "auto"}),
-        
-            html.Br(),
-            
-        html.Div(id= 'Article-Interactions'), 
-        
-        html.Br()
-            ]),
-], className = "container")
-
+                    ], style={'paddingBottom': '5', "overflow": "auto"}
+                    ),
+                    html.Br(),
+            html.Div([     
+                
+                    html.Div([   
+                
+                    #### User-Interactions Details 
+                            html.Div([ 
+                            dcc.Loading(
+                            dcc.Graph(
+                            id='User-Interactions')
+                            ),
+                            ],style={'backgroundColor':colors['div_bg'], 
+                                 'border':divBorder['border'],
+                                 'border-radius':divBorder['border-radius'], 
+                                 'display' : 'inline-block', 
+                                 'boxSizing' : 'border-box',
+                                 'float':'left',
+                                 'width' : '60%',
+                                 'box-shadow' : '2px 2px 2px lightgrey', 
+                                 'position': 'relative'
+                                 }
+                            ), 
+                    
+                    #### Total Interactions Details
+                            html.Div([ 
+                            dcc.Loading(
+                            dcc.Graph(
+                            id='Total-Interactions')
+                            ),
+                            ],style={'backgroundColor':colors['div_bg'], 
+                                 'border':divBorder['border'],
+                                 'border-radius':divBorder['border-radius'], 
+                                 'display' : 'inline-block', 
+                                 'boxSizing' : 'border-box',
+                                 'float':'right',
+                                 'width' : '38%',
+                                 'box-shadow' : '2px 2px 2px lightgrey',
+                                 'position': 'relative'
+                                 }
+                            ),
+             
+                                ],  
+                                style={'paddingBottom' : '5', "overflow": "auto"}
+                                ),
+                    html.Br(),
+                    
+                    html.Div(id= 'Article-Interactions'), 
+                
+                    html.Br()
+                        ]),
+                                                            ], 
+                        className = "container"
+                    )
 
 ############### DB Loader Articles
 @app.callback(
@@ -207,12 +207,8 @@ def db_articles(start_date, end_date):
     article_table = []
     for Article in ArticleSet:
         cont = [Article.id, Article.title, Article.content, Article.updated_at]
-        article_table.append(cont)
-            
-    article_table_df = pd.DataFrame(article_table, 
-                           columns=['id','title',
-                                    'content', 'updated_at'])
- 
+        article_table.append(cont) 
+    article_table_df = pd.DataFrame(article_table, columns=['id','title', 'content', 'updated_at'])
     
     return json.dumps(article_table, default = myconverter)
 
@@ -228,20 +224,15 @@ def db_interactions(start_date, end_date):
     
     end = dt.strptime(end_date[:10], '%Y-%m-%d').strftime("%Y%m%d")
     
-    Interactions_df = Interactions.query.filter(Interactions.updated_at <= end,
-                                               Interactions.updated_at >= 
-                                                                   start).all()
+    Interactions_df = Interactions.query.filter(Interactions.updated_at <= end, Interactions.updated_at >= start).all()
     interactions_table = []        
     for intr in Interactions_df:
         cont = [intr.id, intr.user_id, intr.article_id, 
                 intr.interaction_type_id,intr.updated_at]
         interactions_table.append(cont)
-            
-    
+             
     interactions_table_df = pd.DataFrame(interactions_table, 
-                           columns=['id','user_id',
-                                    'article_id', 'interaction_type_id', 
-                                                                'updated_at'])
+                           columns=['id','user_id', 'article_id', 'interaction_type_id', 'updated_at'])
     
     return json.dumps(interactions_table, default = myconverter)
 
@@ -252,13 +243,11 @@ def db_interactions(start_date, end_date):
         [dash.dependencies.Input('Intermediate-Details1', 'children')])
     
 def rated_articles(interactions_table):
-    interactions = pd.DataFrame(eval(str(interactions_table)),
-                                columns=['id','user_id', 'article_id', 
-                                         'interaction_type_id', 'updated_at'])
+    interactions = pd.DataFrame(eval(str(interactions_table)), columns=['id','user_id', 'article_id', 
+                                                                 'interaction_type_id', 'updated_at'])
     
     unique_articles = interactions['article_id'].nunique() 
-    
-    
+     
     return unique_articles
 
 
@@ -268,13 +257,11 @@ def rated_articles(interactions_table):
         [dash.dependencies.Input('Intermediate-Details1', 'children')])
     
 def article_raters(interactions_table):
-    interactions = pd.DataFrame(eval(str(interactions_table)),
-                                columns=['id','user_id', 'article_id', 
-                                         'interaction_type_id', 'updated_at'])
+    interactions = pd.DataFrame(eval(str(interactions_table)), columns=['id','user_id', 'article_id', 
+                                                                 'interaction_type_id', 'updated_at'])
     
     unique_users = interactions['user_id'].nunique() 
-    
-    
+     
     return unique_users
 
 
@@ -284,13 +271,11 @@ def article_raters(interactions_table):
         [dash.dependencies.Input('Intermediate-Details1', 'children')])
     
 def interaction_types(interactions_table):
-    interactions = pd.DataFrame(eval(str(interactions_table)),
-                                columns=['id','user_id', 'article_id', 
-                                         'interaction_type_id', 'updated_at'])
+    interactions = pd.DataFrame(eval(str(interactions_table)), columns=['id','user_id', 'article_id', 
+                                                                 'interaction_type_id', 'updated_at'])
     
     unique_users = interactions['interaction_type_id'].nunique() 
-    
-    
+     
     return unique_users
 
 ############### User_id Interactions
@@ -299,13 +284,10 @@ def interaction_types(interactions_table):
         [dash.dependencies.Input('Intermediate-Details1', 'children') ])
     
 def user_interactions_data(interactions_table):
-    interactions = pd.DataFrame(eval(str(interactions_table)), 
-                                            columns=['id','user_id',
-                                    'article_id', 'interaction_type_id', 
-                                                            'updated_at'])
+    interactions = pd.DataFrame(eval(str(interactions_table)), columns=['id','user_id', 'article_id', 
+                                                                  'interaction_type_id', 'updated_at'])
     
-    interactions_df = interactions.groupby('user_id')[
-                                            'interaction_type_id'].count().head(10) 
+    interactions_df = interactions.groupby('user_id')['interaction_type_id'].count().head(10) 
     
     intr_df = pd.DataFrame(interactions_df) 
     Index_intr_df = intr_df.reset_index()  
@@ -328,7 +310,8 @@ def user_interactions_data(interactions_table):
                                             xaxis=dict(automargin = True, 
                                                        tickangle=45),
 #                                            yaxis=dict(title = 'Counts')
-                                            )}
+                                            )
+            }
 
 
 ############### Interactions Details
@@ -338,19 +321,15 @@ def user_interactions_data(interactions_table):
     
 def total_interactions_data(interactions_table):
 #    interactions = pd.read_json(eval(str(interactions_table)))
-    interactions = pd.DataFrame(eval(str(interactions_table)), 
-                                            columns=['id','user_id',
-                                    'article_id', 'interaction_type_id', 
-                                                            'updated_at'])
+    interactions = pd.DataFrame(eval(str(interactions_table)), columns=['id','user_id', 'article_id', 
+                                                                'interaction_type_id', 'updated_at'])
     
-    interactions_df = interactions.groupby('interaction_type_id')[
-                                                        'user_id'].count() 
+    interactions_df = interactions.groupby('interaction_type_id')['user_id'].count() 
     
     intr_df = pd.DataFrame(interactions_df) 
     Index_intr_df = intr_df.reset_index() 
-    Index_intr_df['interaction_type_id'] = Index_intr_df[
-                                    'interaction_type_id'].map({1: 'Likes', 2: 
-                                                    'Bookmarks', 3: 'Share'})
+    Index_intr_df['interaction_type_id'] = Index_intr_df['interaction_type_id'].map({1: 'Likes', 2: 
+                                                                            'Bookmarks', 3: 'Share'})
     
     data = plotly.graph_objs.Bar(
             x=Index_intr_df.interaction_type_id,
@@ -367,7 +346,8 @@ def total_interactions_data(interactions_table):
                                             xaxis=dict(automargin = True, 
                                                        tickangle=45),
                                             yaxis=dict(title = 'Counts')
-                                            )}
+                                            )
+            }
 
 
 ############### Top liked Articles
@@ -378,34 +358,29 @@ def total_interactions_data(interactions_table):
     
 def articles_interactions_data(interactions_table, article_table):
     
-    interactions = pd.DataFrame(eval(str(interactions_table)), 
-                                            columns=['id','user_id',
-                                    'article_id', 'interaction_type_id', 
-                                                            'updated_at'])
+    interactions = pd.DataFrame(eval(str(interactions_table)), columns=['id', 'user_id', 'article_id', 
+                                                                'interaction_type_id', 'updated_at'])
+            
+    articles = pd.DataFrame(eval(str(article_table)), columns=['id', 'title', 'content', 'updated_at'])
+    articles = articles.rename(columns={'id':'article_id', 'title':'title', 'content':'content', 'updated_at':'updated_at'})
+    articles = pd.DataFrame(articles.drop(['updated_at'], 1)) 
     
-    interactions_df = interactions.groupby('article_id')[
-                                            'interaction_type_id'] \
-                                            .count() \
-                                            .sort_values(ascending=False) \
-                                            .head(10) 
+    art_int_df = pd.merge(interactions,articles,on='article_id')
+     
+    interactions_df1 = art_int_df.groupby('article_id')['interaction_type_id'].count() \
+                                            .sort_values(ascending=False).head(10) 
     
-    intr_df = pd.DataFrame(interactions_df) 
-    Index_intr_df = intr_df.reset_index()  
-    user_df = interactions.loc[interactions['article_id'].isin(Index_intr_df['article_id'])] 
+    Index_intr_df = interactions_df1.reset_index() 
     
-    articles = pd.DataFrame(eval(str(article_table)), 
-                                            columns=['id','title',
-                                    'content', 'updated_at'])
+    user_df = art_int_df.loc[art_int_df['article_id'].isin(Index_intr_df['article_id'])]
     
-    article_df = articles.loc[articles['id'].isin(Index_intr_df['article_id'])]   
-    article_df = pd.DataFrame(article_df.drop(['content', 'updated_at'], 1))  
-    article_df = article_df.join(user_df['user_id'])
+    interactions_df = user_df.drop(['content', 'updated_at', 'interaction_type_id'], 1) 
     
     return html.Div([
                     dash_table.DataTable(
                     id='table',
-                    columns=[{"name": i, "id": i} for i in article_df.columns],
-                    data=article_df.to_dict("rows"),
+                    columns=[{"name": i, "id": i} for i in interactions_df.columns],
+                    data=interactions_df.to_dict("rows"),
                     style_cell={'width': 'auto',
                     'height': 'auto',
                     'fontSize': 12,
@@ -419,12 +394,10 @@ def articles_interactions_data(interactions_table, article_table):
     
 def interaction_traffic(interactions_table):
     
-    app_dmat_df = pd.DataFrame(eval(str(interactions_table)), 
-                                columns=['id','user_id', 'article_id',
-                                         'interaction_type_id', 'updated_at'])
+    app_dmat_df = pd.DataFrame(eval(str(interactions_table)), columns=['id','user_id', 'article_id',
+                                                                 'interaction_type_id', 'updated_at'])
     
-    app_dmat_df['updated_at'] =  pd.to_datetime(app_dmat_df['updated_at'], 
-               format='%Y-%m-%d')
+    app_dmat_df['updated_at'] =  pd.to_datetime(app_dmat_df['updated_at'], format='%Y-%m-%d')
     
     app_dmat_df['updated_at'] = app_dmat_df['updated_at'].dt.date
     enc_dmat = app_dmat_df
@@ -435,11 +408,10 @@ def interaction_traffic(interactions_table):
     Index_event_date_df = event_date_df.reset_index()
     Index_event_date_df.columns = ['updated_at', 'counts']
     
-    data = plotly.graph_objs.Scatter(x=Index_event_date_df.updated_at, 
-                                     y=Index_event_date_df.counts)
+    data = plotly.graph_objs.Scatter(x=Index_event_date_df.updated_at, y=Index_event_date_df.counts)
     
     xmin, xmax = np.min(Index_event_date_df.updated_at.to_numpy()), \
-                        np.max(Index_event_date_df.updated_at.to_numpy())
+                                                    np.max(Index_event_date_df.updated_at.to_numpy())
     
     return {'data': [data],
             'layout' : go.Layout(
@@ -458,4 +430,4 @@ def interaction_traffic(interactions_table):
                                 tickvals=[xmin, xmax]
                                     ),
                                     ),
-                              } 
+            } 

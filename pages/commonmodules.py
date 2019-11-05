@@ -41,19 +41,15 @@ def get_header():
         html.Br(),
         html.Br()
 
-    ], className="row gs-header gs-text-header")
+                    ], className="row gs-header gs-text-header")
     return header
 
-def get_menu():
-#    tab_style={
-#        'margin':5
-#        }
+def get_menu(): 
     
     menu = html.Div([ 
         
         dcc.Link('Firebase   ', href='/visual_dash', className="p-2 text-dark"),
-        dcc.Link('News   ', href='/news', className="p-2 text-dark"),
-#        dcc.Link('Interactions   ', href='/visual_interactions', className="p-2 text-dark"), 
+        dcc.Link('Interactions   ', href='/news', className="p-2 text-dark") 
 
-    ], className="d-flex flex-column flex-md-row align-items-center p-1 px-md-4 mb-3 bg-white border-bottom ")
+                    ], className="d-flex flex-column flex-md-row align-items-center p-1 px-md-4 mb-3 bg-white border-bottom ")
     return menu    
