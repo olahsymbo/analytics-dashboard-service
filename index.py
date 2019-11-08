@@ -45,8 +45,8 @@ def display_page(pathname):
          return news.layout
 #    elif pathname == '/':
 #         return home.layout
-    else:
-        return '404'
+#    else:
+#        return '404'
 
 
 if __name__ == '__main__':

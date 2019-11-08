@@ -85,7 +85,7 @@ layout = html.Div(style={'backgroundColor': colors['background'],
                                 html.H2(id = "Unique-Users",
                                         className = "info_text",
                                         style={'textAlign' : 'center', 
-                                               'opacity': 5}
+                                               'opacity': 7}
                                    ), 
                                 ], style={'textAlign': 'center', 
                                           'fontSize': 15,  
@@ -101,7 +101,7 @@ layout = html.Div(style={'backgroundColor': colors['background'],
                                 html.H2(id = "Total-Event-Details",
                                         className = "info_text" ,
                                         style={'textAlign' : 'center', 
-                                               'opacity': 5 
+                                               'opacity': 7
                                                }
                                         ), 
                                 ], style={'textAlign': 'center',  
@@ -118,7 +118,7 @@ layout = html.Div(style={'backgroundColor': colors['background'],
                                 html.H2(id = "Churn-Number-Details",
                                         className = "info_text",
                                         style={'textAlign' : 'center', 
-                                               'opacity': 5,
+                                               'opacity': 7,
                                               }
                                         ), 
                                 ], style={'textAlign': 'center', 
