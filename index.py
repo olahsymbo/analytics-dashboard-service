@@ -48,10 +48,10 @@ def display_page(pathname):
          return visual_dash.layout    
     elif pathname == '/news':
          return news.layout
-#    elif pathname == '/':
-#         return home.layout
-#    else:
-#        return '404'
+    elif pathname == '/':
+         return news.layout
+    else:
+        return '404'
 
 
 if __name__ == '__main__':
