@@ -15,12 +15,12 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly
 import plotly.graph_objs as go   
-from app import app
+from dash_app import app
 from dashboard_firebase import *
 from pages import commonmodules
 import logging
-log = logging.getLogger('werkzeug')
-log.setLevel(logging.ERROR) 
+#log = logging.getLogger('werkzeug')
+#log.setLevel(logging.ERROR) 
 
 client = db_config(dash_dir)
  
@@ -264,7 +264,7 @@ def db_data(start_date, end_date):
           """.format('"%s"' % start, '"%s"' % end)
         
     query_job = client.query(QUERY)
-    print("firebase data loaded")
+#    print("firebase data loaded")
     
     datan = list(query_job.result(timeout=100))
      

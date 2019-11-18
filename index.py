@@ -9,13 +9,18 @@ dash_dir = os.path.realpath(os.path.dirname(app_path))
 import base64 
 import dash
 import dash_core_components as dcc
-import dash_html_components as html 
-from app import app
+import dash_html_components as html
+import dash_bootstrap_components as dbc
+from dash_app import app
 from pages import news, visual_dash
 from dashboard_firebase import *
 import logging 
-log = logging.getLogger('werkzeug')
-log.setLevel(logging.ERROR)
+#log = logging.getLogger('werkzeug')
+#log.setLevel(logging.ERROR)
+
+#app = dash.Dash(__name__, external_stylesheets=[dbc.themes.LUMEN])
+#app.config.suppress_callback_exceptions = True
+#server = app.server
 
 colors = {
             'background': '#f5f6f7',             #'#9KDBFF'

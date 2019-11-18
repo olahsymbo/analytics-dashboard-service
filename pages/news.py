@@ -5,7 +5,7 @@ import dash_html_components as html
 from pages import commonmodules 
 import pandas as pd
 import numpy as np
-from app import app
+from dash_app import app
 from datetime import datetime as dt, timedelta
 import plotly
 import plotly.graph_objs as go  
