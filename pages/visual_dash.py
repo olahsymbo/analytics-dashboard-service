@@ -277,9 +277,12 @@ def db_data(start_date, end_date):
 ############### Unique Users
 @app.callback(
         dash.dependencies.Output('Unique-Users','children'),
-        [dash.dependencies.Input('Intermediate-Details', 'children') ])
+        [dash.dependencies.Input('Intermediate-Details', 'n_intervals') ])
     
 def user_data(datann):
+    if datann is None:
+        raise dash.exceptions.PreventUpdate
+        
     datann = pd.read_json(datann)
     app_dmat = [] 
     for row in range(len(datann)):
@@ -301,9 +304,12 @@ def user_data(datann):
 ############### Total Events
 @app.callback(
         dash.dependencies.Output('Total-Event-Details','children'),
-        [dash.dependencies.Input('Intermediate-Details', 'children') ])
+        [dash.dependencies.Input('Intermediate-Details', 'n_intervals') ])
     
 def total_event_data(datann):
+    if datann is None:
+        raise dash.exceptions.PreventUpdate
+        
     datann = pd.read_json(datann) 
     
     return datann.shape[0]
@@ -311,9 +317,12 @@ def total_event_data(datann):
 ############### Churn Rate
 @app.callback(
         dash.dependencies.Output('Churn-Number-Details','children'),
-        [dash.dependencies.Input('Intermediate-Details', 'children') ])
+        [dash.dependencies.Input('Intermediate-Details', 'n_intervals') ])
     
 def churn_number_data(datann):
+    if datann is None:
+        raise dash.exceptions.PreventUpdate
+        
     datann = pd.read_json(datann) 
     
     app_dmat = [] 
@@ -340,9 +349,13 @@ def churn_number_data(datann):
 ############### Country Details
 @app.callback(
         dash.dependencies.Output('Country-Details','figure'),
-        [dash.dependencies.Input('Intermediate-Details', 'children') ])
+        [dash.dependencies.Input('Intermediate-Details', 'n_intervals') ])
     
 def country_data(datann):
+    
+    if datann is None:
+        raise dash.exceptions.PreventUpdate
+        
     datann = pd.read_json(datann)
     app_dmat = [] 
     for row in range(len(datann)):
