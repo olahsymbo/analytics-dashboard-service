@@ -4,7 +4,7 @@
 1. Clone this repository
 
 ```
-
+   git clone git@github.com:olahsymbo/analytics-dashboard-service.git
 ```
 
 
