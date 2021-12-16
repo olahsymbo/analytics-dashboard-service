@@ -1,20 +1,17 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-import os 
+import os
 import inspect
 app_path = inspect.getfile(inspect.currentframe())
 dash_dir = os.path.realpath(os.path.dirname(app_path))
 
 from google.cloud import bigquery
-#from bq_helper import BigQueryHelper
+from bq_helper import BigQueryHelper
 from google.oauth2 import service_account
 
 def db_config(dash_dir):
     credentials = service_account.Credentials.from_service_account_file(
-            os.path.join(dash_dir, "config/clane-8d862-fa96872fe9cb.json"))
+            os.path.join(dash_dir, "config/project-8d862-fa96872fe9cb.json"))
     
-    project_id = "clane-8d862"
+    project_id = "project-8d862"
     client = bigquery.Client(credentials= credentials, project=project_id)
     return client
     
