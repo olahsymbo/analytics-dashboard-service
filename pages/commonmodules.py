@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 import os
 import inspect
 app_path = inspect.getfile(inspect.currentframe())
@@ -44,6 +41,7 @@ def get_header():
                     ], className="row gs-header gs-text-header")
     return header
 
+
 def get_menu(): 
     
     menu = html.Div([ 
@@ -51,5 +49,7 @@ def get_menu():
         dcc.Link('Firebase   ', href='/visual_dash', className="p-2 text-dark"),
         dcc.Link('Interactions   ', href='/news', className="p-2 text-dark") 
 
-                    ], className="d-flex flex-column flex-md-row align-items-center p-1 px-md-4 mb-3 bg-white border-bottom ")
+                    ], className="d-flex flex-column "
+                                 "flex-md-row align-items-center "
+                                 "p-1 px-md-4 mb-3 bg-white border-bottom ")
     return menu    

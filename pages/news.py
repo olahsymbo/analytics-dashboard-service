@@ -45,17 +45,16 @@ layout = html.Div(style={'backgroundColor': colors['background'],
             html.Div([
                     dcc.DatePickerRange(
                         id='my-date-picker-range',
-                        min_date_allowed=dt(2018, 10, 31),
+                        min_date_allowed=dt(2019, 10, 31),
                         max_date_allowed=dt(2021, 12, 31),
-                        initial_visible_month=dt(2019, 8, 1),
+                        initial_visible_month=dt(2020, 9, 1),
                         start_date=dt.today() - timedelta(days=8),
                         end_date=dt.today() - timedelta(days=1)),
             html.Div(id='output-container-date-picker-range'),
             dcc.Loading(
             html.Div(id='Intermediate-Details', style={'display': 'none'}), 
                                                                 type="circle"),   
-#            html.Div(id='Intermediate-Details1', style={'display': 'none'}),   
-#            html.Div(id='Intermediate-Details2', style={'display': 'none'}),  
+#            html.Div(id='Intermediate-Details1', style={'display': 'none'}),
             html.Div(dcc.Store(id='Intermediate-Details1')),   
             html.Div(dcc.Store(id='Intermediate-Details2')),  
             ]),
@@ -287,29 +286,38 @@ def user_interactions_data(interactions_table):
     interactions = pd.DataFrame(eval(str(interactions_table)), columns=['id','user_id', 'article_id', 
                                                                   'interaction_type_id', 'updated_at'])
     
-    interactions_df = interactions.groupby('user_id')['interaction_type_id'].count().head(10) 
-    
+    interactions_df = interactions.groupby('user_id')['interaction_type_id'].sum()\
+        .sort_values(ascending=False).head(30)
+
+    print('sorted interactions:', interactions_df)
+    try:
+        xmin, xmax = np.min(interactions.user_id.to_numpy()), \
+                     np.max(interactions.user_id.to_numpy())
+    except ValueError:  # raised if `y` is empty.
+        pass
+
     intr_df = pd.DataFrame(interactions_df) 
-    Index_intr_df = intr_df.reset_index()  
-    
+    Index_intr_df = intr_df.reset_index()
+
     data = plotly.graph_objs.Bar(
             y=Index_intr_df.user_id,
             x=Index_intr_df.interaction_type_id, 
             orientation='h',            
             name='User_Interactions' 
             )
-    
+
     return {'data': [data],
             'layout' : go.Layout(title=dict(
                                             text="<b> Top Users (Interactions) </b>",
                                             ), 
                                             font=dict(size=10),
                                             height = 350,
-                                            margin = dict(l=180, r=50, b=50,
-                                                          t=100, pad=5), 
+                                            margin = dict(l=120, r=50, b=50,
+                                                          t=100, pad=2),
                                             xaxis=dict(automargin = True, 
-                                                       tickangle=45),
-#                                            yaxis=dict(title = 'Counts')
+                                                       tickangle=45,
+                                                       title = 'interactions'),
+                                            yaxis=dict(title = 'users')
                                             )
             }
 
@@ -396,7 +404,8 @@ def interaction_traffic(interactions_table):
     
     app_dmat_df = pd.DataFrame(eval(str(interactions_table)), columns=['id','user_id', 'article_id',
                                                                  'interaction_type_id', 'updated_at'])
-    
+
+    print(app_dmat_df)
     app_dmat_df['updated_at'] =  pd.to_datetime(app_dmat_df['updated_at'], format='%Y-%m-%d')
     
     app_dmat_df['updated_at'] = app_dmat_df['updated_at'].dt.date
@@ -409,9 +418,13 @@ def interaction_traffic(interactions_table):
     Index_event_date_df.columns = ['updated_at', 'counts']
     
     data = plotly.graph_objs.Scatter(x=Index_event_date_df.updated_at, y=Index_event_date_df.counts)
-    
-    xmin, xmax = np.min(Index_event_date_df.updated_at.to_numpy()), \
-                                                    np.max(Index_event_date_df.updated_at.to_numpy())
+
+    try:
+        xmin, xmax = np.min(Index_event_date_df.updated_at.to_numpy()), \
+                     np.max(Index_event_date_df.updated_at.to_numpy())
+    except ValueError:  # raised if `y` is empty.
+        pass
+
     
     return {'data': [data],
             'layout' : go.Layout(
