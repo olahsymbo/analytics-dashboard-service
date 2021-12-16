@@ -1,7 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
- 
-import dash_html_components as html 
+import dash_html_components as html
 from pages import commonmodules 
 import pandas as pd
 import numpy as np
@@ -12,7 +9,7 @@ import plotly.graph_objs as go
 import dash
 import dash_table
 import dash_core_components as dcc
-from TableModels.Artc import Articles, Interactions
+from models.Artc import Articles, Interactions
 import json
  
 colors = {
