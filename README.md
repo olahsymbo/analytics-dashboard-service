@@ -1,10 +1,10 @@
-# Clane Analytics Dashboard
+# Analytics Dashboard
 
 
 1. Clone this repository
 
 ```
-git clone https://github.com/clane-bank/clane-service-dashboard
+
 ```
 
 

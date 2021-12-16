@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 import os
 import inspect
 app_path = inspect.getfile(inspect.currentframe())
@@ -14,17 +11,11 @@ import dash_bootstrap_components as dbc
 from dash_app import app
 from pages import news, visual_dash
 from dashboard_firebase import *
-import logging 
-#log = logging.getLogger('werkzeug')
-#log.setLevel(logging.ERROR)
-
-#app = dash.Dash(__name__, external_stylesheets=[dbc.themes.LUMEN])
-#app.config.suppress_callback_exceptions = True
-#server = app.server
+import logging
 
 colors = {
-            'background': '#f5f6f7',             #'#9KDBFF'
-            'div_bg': '#9KDBFF',    ##e2ecfb
+            'background': '#f5f6f7',
+            'div_bg': '#9KDBFF',
             'text': '#000000'
          }
 
@@ -33,14 +24,15 @@ divBorder = {
              'border-radius': '5px'
             }
 
-encoded_image = base64.b64encode(open(os.path.join(dash_dir, "img/clane.png"), 'rb').read())
+encoded_image = base64.b64encode(open(os.path.join(dash_dir, "img/image.png"), 'rb').read())
 
 app.layout = html.Div([
     # represents the URL bar, doesn't render anything
     dcc.Location(id='url', refresh=False), 
     html.Div(id='page-content')
 ])
-    
+
+
 @app.callback(dash.dependencies.Output('page-content', 'children'),
               [dash.dependencies.Input('url', 'pathname')])
 def display_page(pathname):
@@ -55,4 +47,4 @@ def display_page(pathname):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=True, port=8090)

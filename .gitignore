@@ -3,6 +3,10 @@
 __pycache__
 queryLoader
 read_data
-config/google-services.json
-config/bigquery_python.txt
-config/clane-8d862-fa96872fe9cb.json 
+config
+configura.py
+queryLoader.py
+read_data.py
+TableModels
+img
+models/Intr.py
